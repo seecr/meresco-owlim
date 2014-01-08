@@ -83,18 +83,6 @@ public class OwlimTriplestoreTest {
         "</rdf:RDF>";
 
     @Test
-    public void testAddGetStatements() throws Exception {
-        long startingPoint = ts.size();
-        ts.add("uri:id0", rdf);
-        RepositoryResult<Statement> statements = ts.getStatements(null, null, null);
-        assertEquals(startingPoint + 2, statements.asList().size());
-        List<Statement> statementList = ts.getStatements(new URIImpl("http://www.example.org/index.html"), null, null).asList();
-        assertEquals(2, statementList.size());
-        assertEquals(new LiteralImpl("August 16, 1999"), statementList.get(0).getObject());
-        assertEquals(new LiteralImpl("A.M. Özman Yürekli"), statementList.get(1).getObject());
-    }
-
-    @Test
     public void testGetNamespaces() throws Exception {
         ts.add("uri:id0", rdf);
         List<Namespace> namespacesList = ts.getNamespaces();
@@ -154,8 +142,7 @@ public class OwlimTriplestoreTest {
         ts.add("uri:id0", rdf);
         ts.shutdown();
         OwlimTriplestore ts = new OwlimTriplestore(tempdir, "storageName");
-        RepositoryResult<Statement> statements = ts.getStatements(null, null, null);
-        assertEquals(2, statements.asList().size());
+        assertEquals(2, ts.size());
     }
 
     @Ignore @Test
@@ -210,12 +197,9 @@ public class OwlimTriplestoreTest {
 "}";
 
     @Test
-    public void testImportGetStatements() throws Exception {
+    public void testImport() throws Exception {
         long startingPoint = ts.size();
         ts.importTrig(trig);
-        RepositoryResult<Statement> statements = ts.getStatements(null, null, null);
-        assertEquals(startingPoint + 1, statements.asList().size());
-        List<Statement> statementList = ts.getStatements(new URIImpl("uri:aSubject"), null, null).asList();
-        assertEquals(1, statementList.size());
+        assertEquals(startingPoint + 1, ts.size());
     }
 }

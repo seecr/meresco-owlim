@@ -1,10 +1,8 @@
 ## begin license ##
 #
-# The Meresco Owlim package consists out of a HTTP server written in Java that
-# provides access to an Owlim Triple store, as well as python bindings to
-# communicate as a client with the server.
+# The Meresco Owlim package is an Owlim Triplestore based on meresco-triplestore
 #
-# Copyright (C) 2011-2013 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2011-2014 Seecr (Seek You Too B.V.) http://seecr.nl
 #
 # This file is part of "Meresco Owlim"
 #
@@ -215,7 +213,6 @@ class OwlimTest(IntegrationTestCase):
             </rdf:Description>
         </rdf:RDF>""" % i, parse=False)
                 totalTime += time() - start
-
             self.assertTiming(0.00015, totalTime / number, 0.0075)
         finally:
             postRequest(self.owlimPort, "/delete?identifier=uri:record", "")

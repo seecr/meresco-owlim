@@ -71,7 +71,7 @@ public class OwlimServer {
             commandLine = parser.parse(options, args);
         } catch (MissingOptionException e) {
             HelpFormatter helpFormatter = new HelpFormatter();
-            helpFormatter.printHelp("start-owlimhttpserver" , options);
+            helpFormatter.printHelp("start-owlim" , options);
             System.exit(1);
         }
 

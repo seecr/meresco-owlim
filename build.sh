@@ -40,7 +40,7 @@ test -d $BUILDDIR && rm -r $BUILDDIR
 mkdir $BUILDDIR
 
 CP="$(echo $JARS | tr ' ' ':'):$(echo $MERESCO_TRIPLESTORE_JARS | tr ' ' ':'):$(echo $OWLIMJARS | tr ' ' ':')"
-echo $CP
+
 javaFiles=$(find src/java -name "*.java")
 javac -d $BUILDDIR -cp $CP $javaFiles
 if [ "$?" != "0" ]; then

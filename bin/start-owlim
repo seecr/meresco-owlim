@@ -53,5 +53,5 @@ execv("/usr/bin/java", [
     '-Dfile.encoding=UTF-8',
     '-DentityExpansionLimit=1024000',
     '-cp', CP,
-    'org.meresco.triplestore.Server'] + argv[1:])
+    'org.meresco.triplestore.OwlimServer'] + argv[1:])
 

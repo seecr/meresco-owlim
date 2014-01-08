@@ -37,7 +37,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.MissingOptionException;
 
-public class Server {
+public class OwlimServer {
     public static void main(String[] args) throws Exception {
         Option option;
 

@@ -30,7 +30,7 @@ from glob import glob
 OWLIMJARS = glob("/usr/share/java/owlim-lite-java/*.jar")
 TRIPLESTORE_JARS = glob("/usr/share/java/meresco-triplestore/*.jar")
 MY_JARS = glob("/usr/share/java/meresco-owlim/*.jar")
-from os import system                                        #DO_NOT_DISTRIBUTE
+from os import system
 from os.path import dirname, abspath                         #DO_NOT_DISTRIBUTE
 projectdir = dirname(dirname(abspath(__file__)))             #DO_NOT_DISTRIBUTE
 status = system("cd %s; ./build.sh"  % projectdir)           #DO_NOT_DISTRIBUTE

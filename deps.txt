@@ -1,3 +1,4 @@
 owlim-lite-java (>= 4.2)
 owlim-lite-java (<< 4.3)
 meresco-triplestore (>= 4.6)
+meresco-triplestore (<< 4.7)

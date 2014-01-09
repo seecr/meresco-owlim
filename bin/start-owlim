@@ -24,7 +24,7 @@
 #
 ## end license ##
 
-from os import execv
+from os import execv, environ
 from sys import argv
 from glob import glob
 OWLIMJARS = glob("/usr/share/java/owlim-lite-java/*.jar")
@@ -46,11 +46,15 @@ maxMemArgs = [arg for arg in argv[1:] if arg.startswith('-Xmx')]
 maxMem = maxMemArgs[-1] if maxMemArgs else '-Xmx1536m'
 argv = [arg for arg in argv if arg != maxMem]
 
-if system("java -version 2>&1 | grep '1.6' > /dev/null") != 0:
-    print "Java version should be java 6"
+java = '/usr/bin/java'
+if 'JAVA_BIN' in environ and environ['JAVA_BIN']:
+    java = environ['JAVA_BIN'] + "/java"
+
+if system("%s -version 2>&1 | grep '1.6' > /dev/null" % java) != 0:
+    print "Java version should be java 6; You could specify a different java with JAVA_BIN"
     exit(1)
 
-execv("/usr/bin/java", [
+execv(java, [
     argv[0],
     maxMem,
     '-Dfile.encoding=UTF-8',

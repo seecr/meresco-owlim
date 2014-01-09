@@ -30,7 +30,6 @@ from glob import glob
 OWLIMJARS = glob("/usr/share/java/owlim-lite-java/*.jar")
 TRIPLESTORE_JARS = glob("/usr/share/java/meresco-triplestore/*.jar")
 MY_JARS = glob("/usr/share/java/meresco-owlim/*.jar")
-
 from os import system                                        #DO_NOT_DISTRIBUTE
 from os.path import dirname, abspath                         #DO_NOT_DISTRIBUTE
 projectdir = dirname(dirname(abspath(__file__)))             #DO_NOT_DISTRIBUTE
@@ -46,6 +45,10 @@ CP = ':'.join(MY_JARS + TRIPLESTORE_JARS + OWLIMJARS)
 maxMemArgs = [arg for arg in argv[1:] if arg.startswith('-Xmx')]
 maxMem = maxMemArgs[-1] if maxMemArgs else '-Xmx1536m'
 argv = [arg for arg in argv if arg != maxMem]
+
+if system("java -version 2>&1 | grep '1.6' > /dev/null") != 0:
+    print "Java version should be java 6"
+    exit(1)
 
 execv("/usr/bin/java", [
     argv[0],

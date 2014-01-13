@@ -38,7 +38,7 @@ from weightless.core import compose
 from seecr.test.utils import getRequest, postRequest
 from seecr.test.integrationtestcase import IntegrationTestCase
 
-from meresco.owlim import HttpClient, MalformedQueryException, InvalidRdfXmlException
+from meresco.triplestore import HttpClient, MalformedQueryException, InvalidRdfXmlException
 from seecr.test.io import stderr_replaced
 
 

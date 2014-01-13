@@ -31,7 +31,12 @@ if ! javac -version 2>&1 | grep 1.6 > /dev/null; then
 fi
 
 MERESCO_TRIPLESTORE_JARS=$(test -d /usr/share/java/meresco-triplestore && find /usr/share/java/meresco-triplestore -type f -name "*.jar")
-MERESCO_TRIPLESTORE_JARS=$(find -L deps.d/* -type f -name "*.jar") # DO_NOT_DISTRIBUTE
+if [ -d deps.d ]; then                                      # DO_NOT_DISTRIBUTE
+    FIND_RESULT=$(find -L deps.d/* -type f -name "*.jar")   # DO_NOT_DISTRIBUTE
+    if [ ! -z "${FIND_RESULT}" ]; then                      # DO_NOT_DISTRIBUTE
+        MERESCO_TRIPLESTORE_JARS=${FIND_RESULT}             # DO_NOT_DISTRIBUTE
+    fi                                                      # DO_NOT_DISTRIBUTE
+fi                                                          # DO_NOT_DISTRIBUTE
 OWLIMJARS=$(find /usr/share/java/owlim-lite-java/ -type f -name "*.jar")
 JARS=$(find jars -type f -name "*.jar")
 

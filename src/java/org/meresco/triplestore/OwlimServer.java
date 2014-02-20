@@ -85,7 +85,9 @@ public class OwlimServer {
             System.exit(1);
         }
 
+        long startTime = System.currentTimeMillis();
         Triplestore tripleStore = new OwlimTriplestore(new File(storeLocation), storeName);
+        System.out.println("Starting took " + (System.currentTimeMillis() - startTime) / 1000 + " seconds");
         if (!disableTransactionLog) {
         	tripleStore = new TransactionLog(tripleStore, new File(storeLocation));
         }
@@ -93,9 +95,6 @@ public class OwlimServer {
         HttpServer httpServer = new HttpServer(port, 15);
 
         registerShutdownHandler(tripleStore, httpServer);
-
-        System.out.println("Triplestore started with " + String.valueOf(tripleStore.size()) + " statements");
-        System.out.flush();
 
         httpServer.setHandler(handler);
         httpServer.start();

@@ -122,7 +122,8 @@ public class OwlimTriplestoreTest {
 
         ts.add("uri:id0", rdf);
         answer = ts.executeQuery("SELECT ?x ?y ?z WHERE {?x ?y ?z}", TupleQueryResultFormat.JSON);
-        assertTrue(answer.indexOf("\"z\": { \"type\": \"literal\", \"value\": \"A.M. Özman Yürekli\" },") > -1);
+        System.out.println(answer);
+        assertTrue(answer.indexOf("\"z\" : {\n        \"type\" : \"literal\",\n        \"value\" : \"A.M. Özman Yürekli\"") > -1);
         assertTrue(answer.endsWith("\n}"));
     }
 

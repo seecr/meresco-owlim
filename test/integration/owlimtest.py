@@ -28,7 +28,7 @@ from os import kill, waitpid, WNOHANG, system, symlink, makedirs
 from simplejson import loads
 from urllib import urlencode
 from urllib2 import urlopen, Request
-from signal import SIGKILL
+from signal import SIGKILL, SIGTERM
 from time import time
 from threading import Thread
 from socket import error as socketError
@@ -44,7 +44,8 @@ from seecr.test.io import stderr_replaced
 
 class OwlimTest(IntegrationTestCase):
     def testOne(self):
-        self.assertTrue('"vars": [ "x" ]' in urlopen("http://localhost:%s/query?%s" % (self.owlimPort, urlencode(dict(query='SELECT ?x WHERE {}')))).read())
+        result = urlopen("http://localhost:%s/query?%s" % (self.owlimPort, urlencode(dict(query='SELECT ?x WHERE {}')))).read()
+        self.assertTrue('"vars" : [ "x" ]' in result, result)
 
     def testAddTripleThatsNotATriple(self):
         owlimClient = HttpClient(host='localhost', port=self.owlimPort, synchronous=True)
@@ -103,7 +104,7 @@ class OwlimTest(IntegrationTestCase):
         json = self.query('SELECT ?x WHERE {?x ?y <uri:testKillTripleStoreRecoversFromTransactionLog>}')
         self.assertEquals(2, len(json['results']['bindings']))
 
-        kill(self.pids['owlim'], SIGKILL)
+        kill(self.pids['owlim'], SIGTERM)
         waitpid(self.pids['owlim'], WNOHANG)
         self.startOwlimServer()
 
@@ -300,7 +301,9 @@ class OwlimTest(IntegrationTestCase):
         self.assertEqualsWS("""Supported formats:
 - SPARQL/XML (mimeTypes=application/sparql-results+xml, application/xml; ext=srx, xml)
 - BINARY (mimeTypes=application/x-binary-rdf-results-table; ext=brt)
-- SPARQL/JSON (mimeTypes=application/sparql-results+json; ext=srj)""", body)
+- SPARQL/JSON (mimeTypes=application/sparql-results+json, application/json; ext=srj, json)
+- SPARQL/CSV (mimeTypes=text/csv; ext=csv)
+- SPARQL/TSV (mimeTypes=text/tab-separated-values; ext=tsv)""", body)
 
     def testMimeTypeArgument(self):
         postRequest(self.owlimPort, "/add?identifier=uri:record", """<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">

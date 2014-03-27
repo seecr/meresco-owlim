@@ -37,6 +37,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.MissingOptionException;
 
+import sun.misc.Signal;
+import sun.misc.SignalHandler;
+
 public class OwlimServer {
     public static void main(String[] args) throws Exception {
         Option option;
@@ -101,23 +104,32 @@ public class OwlimServer {
     }
 
     static void registerShutdownHandler(final Triplestore tripleStore, final HttpServer httpServer) {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run()
-            {
-                System.out.println("Shutting down triplestore. Please wait...");
-                httpServer.stop();
-                try {
-                    tripleStore.shutdown();
-                    System.out.println("Shutdown completed.");
-                    System.out.flush();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    System.err.flush();
-                    System.out.println("Shutdown failed.");
-                    System.out.flush();
-                }
+        SignalHandler old = Signal.handle(new Signal("TERM"), new SignalHandler() {
+            public void handle(Signal sig) {
+                shutdown(httpServer, tripleStore);
             }
         });
+        SignalHandler old_int = Signal.handle(new Signal("INT"), new SignalHandler() {
+            public void handle(Signal sig) {
+                shutdown(httpServer, tripleStore);
+            }
+        });
+    }
+
+    static void shutdown(final HttpServer httpServer, final Triplestore tripleStore) {
+        System.out.println("Shutting down triplestore. Please wait...");
+        try {
+            tripleStore.shutdown();
+            System.out.println("Shutdown completed.");
+            System.out.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.flush();
+            System.out.println("Shutdown failed.");
+            System.out.flush();
+        }
+        httpServer.stop();
+        System.out.println("Http-server stopped");
+        System.exit(0);
     }
 }

@@ -104,12 +104,12 @@ public class OwlimServer {
     }
 
     static void registerShutdownHandler(final Triplestore tripleStore, final HttpServer httpServer) {
-        SignalHandler old = Signal.handle(new Signal("TERM"), new SignalHandler() {
+        Signal.handle(new Signal("TERM"), new SignalHandler() {
             public void handle(Signal sig) {
                 shutdown(httpServer, tripleStore);
             }
         });
-        SignalHandler old_int = Signal.handle(new Signal("INT"), new SignalHandler() {
+        Signal.handle(new Signal("INT"), new SignalHandler() {
             public void handle(Signal sig) {
                 shutdown(httpServer, tripleStore);
             }

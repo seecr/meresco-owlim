@@ -64,6 +64,7 @@ public class OwlimTriplestoreTest {
 
     @After
     public void tearDown() throws Exception {
+        ts.shutdown();
         deleteDirectory(tempdir);
     }
 
@@ -122,7 +123,6 @@ public class OwlimTriplestoreTest {
 
         ts.add("uri:id0", rdf);
         answer = ts.executeQuery("SELECT ?x ?y ?z WHERE {?x ?y ?z}", TupleQueryResultFormat.JSON);
-        System.out.println(answer);
         assertTrue(answer.indexOf("\"z\" : {\n        \"type\" : \"literal\",\n        \"value\" : \"A.M. Özman Yürekli\"") > -1);
         assertTrue(answer.endsWith("\n}"));
     }
@@ -144,9 +144,10 @@ public class OwlimTriplestoreTest {
         ts.shutdown();
         OwlimTriplestore ts = new OwlimTriplestore(tempdir, "storageName");
         assertEquals(2, ts.size());
+        ts.shutdown();
     }
 
-    @Ignore @Test
+    @Ignore
     public void testShutdownFails() throws Exception {
         File tsPath = new File(tempdir, "anotherOne");
         ts = new OwlimTriplestore(tempdir, "anotherOne");
@@ -172,6 +173,7 @@ public class OwlimTriplestoreTest {
 
     @Test
     public void testExport() throws Exception {
+        ts.shutdown();
         ts = new OwlimTriplestore(tempdir, "storageName");
         ts.startup();
         ts.addTriple("uri:subj|uri:pred|uri:obj");

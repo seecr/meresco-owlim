@@ -1,5 +1,5 @@
-owlim-lite-java (>= 4.2)
-owlim-lite-java (<< 4.3)
+owlim-lite-java (>= 5.4)
+owlim-lite-java (<< 5.5)
 meresco-triplestore-client (>= 4.6)
 meresco-triplestore-client (<< 4.7)
 meresco-triplestore-server (>= 4.6)

@@ -3,6 +3,6 @@
 #centos5:java-1.6.0-openjdk-devel
 #centos6:java-1.6.0-openjdk-devel
 owlim-lite-java (>= 5.4)
-owlim-lite-java (<< 5.4)
+owlim-lite-java (<< 5.5)
 meresco-triplestore-server (>= 4.7)
 meresco-triplestore-server (<< 4.8)

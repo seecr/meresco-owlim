@@ -8,34 +8,53 @@ function show_usage {
        - Hostname of Owlim instance
     --port=<number>
        - Portnumber of Owlim instance
+    --file=<filename>
+       - Name of file containing dump
 "
 }
 
 TEMP=$(getopt \
     --options "" \
-    --long host::,port:: \
+    --long host::,port::,file:: \
     -n "$0" -- "$@")
 
 eval set -- "$TEMP"
 
 while true ; do
-        case "$1" in
-                --host)
-                    case "$2" in
-                        "") show_usage ; exit 1 ;;
-                        *) HOST=$2 ; shift 2 ;;
-                    esac ;;
-                --port)
-                    case "$2" in
-                        "") show_usage ; exit 1 ;;
-                        *) PORT=$2 ; shift 2;;
-                    esac ;;
-                --) shift ; break ;;
-                *) echo "Unknown option specified." ; exit 1 ;;
-        esac
+    case "$1" in
+        --host)
+            case "$2" in
+                "") show_usage ; exit 1 ;;
+                *) HOST=$2 ; shift 2 ;;
+            esac ;;
+        --port)
+            case "$2" in
+                "") show_usage ; exit 1 ;;
+                *) PORT=$2 ; shift 2;;
+            esac ;;
+        --file)
+            case "$2" in
+                "") show_usage ; exit 1 ;;
+                *) FILE=$2 ; shift 2;;
+            esac ;;
+        --) shift ; break ;;
+        *) echo "Unknown option specified." ; exit 1 ;;
+    esac
 done
 
-if [ -z "${HOST}" -o -z "${PORT}" ]; then
+if [ -z "${HOST}" -o -z "${PORT}" -o -z "${FILE}" ]; then
     show_usage
     exit 0
 fi
+
+if [ ! -f "${FILE}" ]; then
+    echo "${FILE} does not exist"
+    exit 1
+fi
+if [ "${FILE##*.}" = "gz" ]; then
+    echo "Gunzipping ${FILE}"
+    gunzip ${FILE}
+    FILE=${FILE%.gz}
+fi
+
+wget --quiet --output-document /dev/null --post-file "${FILE}" "http://${HOST}:${PORT}/import"

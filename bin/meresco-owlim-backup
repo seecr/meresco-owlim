@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -o errexit
-
 function show_usage {
     echo "Usage: $(basename $0)
     --host=<string>
@@ -13,29 +11,42 @@ function show_usage {
 
 TEMP=$(getopt \
     --options "" \
-    --long host::,port:: \
+    --long host::,port::,identifier:: \
     -n "$0" -- "$@")
 
 eval set -- "$TEMP"
 
+IDENTIFIER="$(hostname --short)-$(date +%Y%m%d-%H%M%S)"
 while true ; do
-        case "$1" in
-                --host)
-                    case "$2" in
-                        "") show_usage ; exit 1 ;;
-                        *) HOST=$2 ; shift 2 ;;
-                    esac ;;
-                --port)
-                    case "$2" in
-                        "") show_usage ; exit 1 ;;
-                        *) PORT=$2 ; shift 2;;
-                    esac ;;
-                --) shift ; break ;;
-                *) echo "Unknown option specified." ; exit 1 ;;
-        esac
+    case "$1" in
+        --host)
+            case "$2" in
+                "") show_usage ; exit 1 ;;
+                *) HOST=$2 ; shift 2 ;;
+            esac ;;
+        --port)
+            case "$2" in
+                "") show_usage ; exit 1 ;;
+                *) PORT=$2 ; shift 2;;
+            esac ;;
+        --identifier)
+            case "$2" in
+                "") show_usage ; exit 1 ;;
+                *) IDENTIFIER=$2 ; shift 2;;
+            esac ;;
+        --) shift ; break ;;
+        *) echo "Unknown option specified." ; exit 1 ;;
+    esac
 done
 
 if [ -z "${HOST}" -o -z "${PORT}" ]; then
     show_usage
     exit 0
+fi
+
+wget --quiet --output-document /dev/null "http://${HOST}:${PORT}/export?identifier=${IDENTIFIER}"
+if [  "$?" == "0" ]; then
+    echo "Backup created in 'backups' subdirectory of Owlim's state path."
+else
+    echo "Error occured during backup"
 fi

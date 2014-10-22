@@ -328,6 +328,27 @@ class OwlimTest(IntegrationTestCase):
     </results>
 </sparql>""", contents)
 
+    def testDescribeQuery(self):
+        postRequest(self.owlimPort, "/add?identifier=uri:record", """<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+        <rdf:Description rdf:about="uri:test:describe">
+            <rdf:value>DESCRIBE</rdf:value>
+        </rdf:Description>
+    </rdf:RDF>""", parse=False)
+
+        headers, body = getRequest(self.owlimPort, "/query", arguments={'query': 'DESCRIBE <uri:test:describe>'}, additionalHeaders={"Accept" : "application/rdf+xml"}, parse=False)
+        self.assertTrue("Content-type: application/rdf+xml" in headers, headers)
+        self.assertXmlEquals("""<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:sesame="http://www.openrdf.org/schema/sesame#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:fn="http://www.w3.org/2005/xpath-functions#">
+<rdf:Description rdf:about="uri:test:describe">
+    <rdf:value>DESCRIBE</rdf:value>
+</rdf:Description></rdf:RDF>""", body)
+
+
     def query(self, query):
         return loads(urlopen('http://localhost:%s/query?%s' % (self.owlimPort,
             urlencode(dict(query=query)))).read())

@@ -281,29 +281,12 @@ class OwlimTest(IntegrationTestCase):
 
         request = Request('http://localhost:%s/query?%s' % (self.owlimPort, urlencode({'query': 'SELECT ?x WHERE {?x ?y "uri:test:acceptHeaders"}'})), headers={"Accept" : "application/xml"})
         contents = urlopen(request).read()
-        self.assertEqualsWS("""<?xml version='1.0' encoding='UTF-8'?>
-<sparql xmlns='http://www.w3.org/2005/sparql-results#'>
-    <head>
-        <variable name='x'/>
-    </head>
-    <results>
-        <result>
-            <binding name='x'>
-                <bnode>node1</bnode>
-            </binding>
-        </result>
-    </results>
-</sparql>""", contents)
+        self.assertTrue("""<variable name='x'/>""" in contents, contents)
 
         headers, body = getRequest(self.owlimPort, "/query", arguments={'query': 'SELECT ?x WHERE {?x ?y "uri:test:acceptHeaders"}'}, additionalHeaders={"Accept" : "image/jpg"}, parse=False)
 
         self.assertEquals(["HTTP/1.1 406 Not Acceptable", "Content-type: text/plain"], headers.split('\r\n')[:2])
-        self.assertEqualsWS("""Supported formats:
-- SPARQL/XML (mimeTypes=application/sparql-results+xml, application/xml; ext=srx, xml)
-- BINARY (mimeTypes=application/x-binary-rdf-results-table; ext=brt)
-- SPARQL/JSON (mimeTypes=application/sparql-results+json, application/json; ext=srj, json)
-- SPARQL/CSV (mimeTypes=text/csv; ext=csv)
-- SPARQL/TSV (mimeTypes=text/tab-separated-values; ext=tsv)""", body)
+        self.assertTrue("""Supported formats SELECT query:""" in body, body)
 
     def testMimeTypeArgument(self):
         postRequest(self.owlimPort, "/add?identifier=uri:record", """<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">

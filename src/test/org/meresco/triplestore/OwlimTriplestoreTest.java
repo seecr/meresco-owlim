@@ -122,7 +122,7 @@ public class OwlimTriplestoreTest {
         String answer = null;
 
         ts.add("uri:id0", rdf);
-        answer = ts.executeQuery("SELECT ?x ?y ?z WHERE {?x ?y ?z}", TupleQueryResultFormat.JSON);
+        answer = ts.executeTupleQuery("SELECT ?x ?y ?z WHERE {?x ?y ?z}", TupleQueryResultFormat.JSON);
         assertTrue(answer.indexOf("\"z\" : {\n        \"type\" : \"literal\",\n        \"value\" : \"A.M. Özman Yürekli\"") > -1);
         assertTrue(answer.endsWith("\n}"));
     }
@@ -132,7 +132,7 @@ public class OwlimTriplestoreTest {
         String answer = null;
 
         ts.add("uri:id0", rdf);
-        answer = ts.executeQuery("SELECT ?x ?y ?z WHERE {?x ?y ?z}", TupleQueryResultFormat.SPARQL);
+        answer = ts.executeTupleQuery("SELECT ?x ?y ?z WHERE {?x ?y ?z}", TupleQueryResultFormat.SPARQL);
         assertTrue(answer.startsWith("<?xml"));
         assertTrue(answer.indexOf("<literal>A.M. Özman Yürekli</literal>") > -1);
         assertTrue(answer.endsWith("</sparql>\n"));

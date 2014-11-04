@@ -285,8 +285,7 @@ class OwlimTest(IntegrationTestCase):
 
         headers, body = getRequest(self.owlimPort, "/query", arguments={'query': 'SELECT ?x WHERE {?x ?y "uri:test:acceptHeaders"}'}, additionalHeaders={"Accept" : "image/jpg"}, parse=False)
 
-        self.assertEquals(["HTTP/1.1 406 Not Acceptable", "Content-type: text/plain"], headers.split('\r\n')[:2])
-        self.assertTrue("""Supported formats SELECT query:""" in body, body)
+        self.assertEquals(["HTTP/1.1 200 OK", "Content-type: application/sparql-results+json"], headers.split('\r\n')[:2])
 
     def testMimeTypeArgument(self):
         postRequest(self.owlimPort, "/add?identifier=uri:record", """<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">

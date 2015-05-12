@@ -51,6 +51,7 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.impl.LiteralImpl;
+import org.openrdf.rio.RDFFormat;
 
 public class OwlimTriplestoreTest {
     OwlimTriplestore ts;
@@ -85,7 +86,7 @@ public class OwlimTriplestoreTest {
 
     @Test
     public void testGetNamespaces() throws Exception {
-        ts.add("uri:id0", rdf);
+        ts.add("uri:id0", rdf, RDFFormat.RDFXML);
         List<Namespace> namespacesList = ts.getNamespaces();
         assertEquals(5, namespacesList.size());
         assertEquals("http://www.w3.org/2000/01/rdf-schema#", namespacesList.get(0).getName());
@@ -111,7 +112,7 @@ public class OwlimTriplestoreTest {
 
     @Test
     public void testDelete() throws Exception {
-        ts.add("uri:id0", rdf);
+        ts.add("uri:id0", rdf, RDFFormat.RDFXML);
         long startingPoint = ts.size();
         ts.delete("uri:id0");
         assertEquals(startingPoint - 2, ts.size());
@@ -121,7 +122,7 @@ public class OwlimTriplestoreTest {
     public void testSparql() throws Exception {
         String answer = null;
 
-        ts.add("uri:id0", rdf);
+        ts.add("uri:id0", rdf, RDFFormat.RDFXML);
         answer = ts.executeTupleQuery("SELECT ?x ?y ?z WHERE {?x ?y ?z}", TupleQueryResultFormat.JSON);
         assertTrue(answer.indexOf("\"z\" : {\n        \"type\" : \"literal\",\n        \"value\" : \"A.M. Özman Yürekli\"") > -1);
         assertTrue(answer.endsWith("\n}"));
@@ -131,7 +132,7 @@ public class OwlimTriplestoreTest {
     public void testSparqlResultInXml() throws Exception {
         String answer = null;
 
-        ts.add("uri:id0", rdf);
+        ts.add("uri:id0", rdf, RDFFormat.RDFXML);
         answer = ts.executeTupleQuery("SELECT ?x ?y ?z WHERE {?x ?y ?z}", TupleQueryResultFormat.SPARQL);
         assertTrue(answer.startsWith("<?xml"));
         assertTrue(answer.indexOf("<literal>A.M. Özman Yürekli</literal>") > -1);
@@ -140,7 +141,7 @@ public class OwlimTriplestoreTest {
 
     @Test
     public void testShutdown() throws Exception {
-        ts.add("uri:id0", rdf);
+        ts.add("uri:id0", rdf, RDFFormat.RDFXML);
         ts.shutdown();
         OwlimTriplestore ts = new OwlimTriplestore(tempdir, "storageName");
         assertEquals(2, ts.size());

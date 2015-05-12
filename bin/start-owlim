@@ -3,8 +3,9 @@
 #
 # The Meresco Owlim package is an Owlim Triplestore based on meresco-triplestore
 #
-# Copyright (C) 2011-2014 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2011-2015 Seecr (Seek You Too B.V.) http://seecr.nl
 # Copyright (C) 2011 Seek You Too B.V. (CQ2) http://www.cq2.nl
+# Copyright (C) 2015 Stichting Kennisnet http://www.kennisnet.nl
 #
 # This file is part of "Meresco Owlim"
 #
@@ -25,6 +26,7 @@
 ## end license ##
 
 from os import execv, environ
+from os.path import isfile
 from sys import argv
 from glob import glob
 
@@ -54,8 +56,13 @@ java = '/usr/bin/java'
 if 'JAVA_BIN' in environ and environ['JAVA_BIN']:
     java = environ['JAVA_BIN'] + "/java"
 
-if system("%s -version 2>&1 | grep '1.6' > /dev/null" % java) != 0:
-    print "Java version should be java 6; You could specify a different java with JAVA_BIN"
+java_version = '1.6'
+if isfile('/etc/debian_version'):
+    if int(open('/etc/debian_version').read()[0]) >= 8:
+        java_version = '1.7'
+
+if system("%s -version 2>&1 | grep '%s' > /dev/null" % (java, java_version)) != 0:
+    print "Java version should be java %s; You could specify a different java with JAVA_BIN" % java_version
     exit(1)
 
 execv(

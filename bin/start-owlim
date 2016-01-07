@@ -56,7 +56,7 @@ java = '/usr/bin/java'
 if 'JAVA_BIN' in environ and environ['JAVA_BIN']:
     java = environ['JAVA_BIN'] + "/java"
 
-java_version = '1.6'
+java_version = '1.7'
 if isfile('/etc/debian_version'):
     if int(open('/etc/debian_version').read()[0]) >= 8:
         java_version = '1.7'
@@ -65,6 +65,7 @@ if system("%s -version 2>&1 | grep '%s' > /dev/null" % (java, java_version)) != 
     print "Java version should be java %s; You could specify a different java with JAVA_BIN" % java_version
     exit(1)
 
+print CP
 execv(
     java,
     [argv0] + XOptions + [

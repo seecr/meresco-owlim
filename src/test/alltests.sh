@@ -40,7 +40,7 @@ if [ -d ../../deps.d ]; then                                      # DO_NOT_DISTR
     if [ ! -z "${FIND_RESULT}" ]; then                            # DO_NOT_DISTRIBUTE
         MERESCO_TRIPLESTORE_JARS=${FIND_RESULT}                   # DO_NOT_DISTRIBUTE
     fi                                                            # DO_NOT_DISTRIBUTE
-fi
+fi                                                                # DO_NOT_DISTRIBUTE
 OWLIMJARS=$(find /usr/share/java/owlim-lite-java/ -type f -name "*.jar")
 JARS=$(find ../../jars -type f -name "*.jar")
 

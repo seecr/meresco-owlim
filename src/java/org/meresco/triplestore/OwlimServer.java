@@ -29,10 +29,18 @@ package org.meresco.triplestore;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.util.Properties;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.util.thread.ExecutorThreadPool;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.MissingOptionException;
@@ -94,29 +102,38 @@ public class OwlimServer {
         if (!disableTransactionLog) {
         	tripleStore = new TransactionLog(tripleStore, new File(storeLocation));
         }
-        HttpHandler handler = new HttpHandler(tripleStore);
-        HttpServer httpServer = new HttpServer(port, 15);
+        
+        ExecutorThreadPool pool = new ExecutorThreadPool(50, 200, 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(1000));
+        Server server = new Server(pool);
+        
+        ContextHandler context = new ContextHandler("/");
+        context.setHandler(new HttpHandler(tripleStore));
+        
+        ServerConnector http = new ServerConnector(server, new HttpConnectionFactory());
+        http.setPort(port);
+        server.addConnector(http);
+        
+        registerShutdownHandler(tripleStore, server);
 
-        registerShutdownHandler(tripleStore, httpServer);
-
-        httpServer.setHandler(handler);
-        httpServer.start();
+        server.setHandler(context);
+        server.start();
+        server.join();
     }
 
-    static void registerShutdownHandler(final Triplestore tripleStore, final HttpServer httpServer) {
+    static void registerShutdownHandler(final Triplestore tripleStore, final Server server) {
         Signal.handle(new Signal("TERM"), new SignalHandler() {
             public void handle(Signal sig) {
-                shutdown(httpServer, tripleStore);
+                shutdown(server, tripleStore);
             }
         });
         Signal.handle(new Signal("INT"), new SignalHandler() {
             public void handle(Signal sig) {
-                shutdown(httpServer, tripleStore);
+                shutdown(server, tripleStore);
             }
         });
     }
 
-    static void shutdown(final HttpServer httpServer, final Triplestore tripleStore) {
+    static void shutdown(final Server server, final Triplestore tripleStore) {
         System.out.println("Shutting down triplestore. Please wait...");
         try {
             tripleStore.shutdown();
@@ -128,7 +145,11 @@ public class OwlimServer {
             System.out.println("Shutdown failed.");
             System.out.flush();
         }
-        httpServer.stop();
+        try {
+            server.stop();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         System.out.println("Http-server stopped");
         System.exit(0);
     }

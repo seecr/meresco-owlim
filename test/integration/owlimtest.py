@@ -2,7 +2,7 @@
 #
 # The Meresco Owlim package is an Owlim Triplestore based on meresco-triplestore
 #
-# Copyright (C) 2011-2014 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2011-2014, 2016 Seecr (Seek You Too B.V.) http://seecr.nl
 #
 # This file is part of "Meresco Owlim"
 #
@@ -214,7 +214,7 @@ class OwlimTest(IntegrationTestCase):
             </rdf:Description>
         </rdf:RDF>""" % i, parse=False)
                 totalTime += time() - start
-            self.assertTiming(0.00015, totalTime / number, 0.0075)
+            self.assertTiming(0.00015, totalTime / number, 0.0085)
         finally:
             postRequest(self.owlimPort, "/delete?identifier=uri:record", "")
 
@@ -243,7 +243,7 @@ class OwlimTest(IntegrationTestCase):
         finally:
             postRequest(self.owlimPort, "/delete?identifier=uri:record", "")
 
-    def testFailingCommitKillsTripleStore(self):
+    def testFailingCommit(self):
         postRequest(self.owlimPort, "/add?identifier=uri:record", """<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
         <rdf:Description>
             <rdf:type>uri:testFailingCommitKillsTripleStore</rdf:type>
@@ -265,13 +265,6 @@ class OwlimTest(IntegrationTestCase):
         finally:
             system("chmod u+w %s" % self.owlimDataDir)
 
-        try:
-            headers, body = getRequest(self.owlimPort, "/query", arguments={'query': 'SELECT ?x WHERE {?x ?y "uri:testFailingCommitKillsTripleStore"}'}, parse=False)
-            self.fail()
-        except socketError:
-            pass
-        self.startOwlimServer()
-
     def testAcceptHeaders(self):
         postRequest(self.owlimPort, "/add?identifier=uri:record", """<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
         <rdf:Description>
@@ -284,8 +277,9 @@ class OwlimTest(IntegrationTestCase):
         self.assertTrue("""<variable name='x'/>""" in contents, contents)
 
         headers, body = getRequest(self.owlimPort, "/query", arguments={'query': 'SELECT ?x WHERE {?x ?y "uri:test:acceptHeaders"}'}, additionalHeaders={"Accept" : "image/jpg"}, parse=False)
-
-        self.assertEquals(["HTTP/1.1 200 OK", "Content-type: application/sparql-results+json"], headers.split('\r\n')[:2])
+        headers = headers.split('\r\n')
+        self.assertTrue("HTTP/1.1 200 OK" in headers, headers)
+        self.assertTrue("Content-Type: application/sparql-results+json; charset=ISO-8859-1" in headers, headers)
 
     def testMimeTypeArgument(self):
         postRequest(self.owlimPort, "/add?identifier=uri:record", """<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
@@ -318,7 +312,7 @@ class OwlimTest(IntegrationTestCase):
     </rdf:RDF>""", parse=False)
 
         headers, body = getRequest(self.owlimPort, "/query", arguments={'query': 'DESCRIBE <uri:test:describe>'}, additionalHeaders={"Accept" : "application/rdf+xml"}, parse=False)
-        self.assertTrue("Content-type: application/rdf+xml" in headers, headers)
+        self.assertTrue("Content-Type: application/rdf+xml" in headers, headers)
         self.assertXmlEquals("""<rdf:RDF
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"

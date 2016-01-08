@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ## begin license ##
 #
 # The Meresco Owlim package is an Owlim Triplestore based on meresco-triplestore
@@ -279,7 +280,7 @@ class OwlimTest(IntegrationTestCase):
         headers, body = getRequest(self.owlimPort, "/query", arguments={'query': 'SELECT ?x WHERE {?x ?y "uri:test:acceptHeaders"}'}, additionalHeaders={"Accept" : "image/jpg"}, parse=False)
         headers = headers.split('\r\n')
         self.assertTrue("HTTP/1.1 200 OK" in headers, headers)
-        self.assertTrue("Content-Type: application/sparql-results+json; charset=ISO-8859-1" in headers, headers)
+        self.assertTrue("Content-Type: application/sparql-results+json; charset=UTF-8" in headers, headers)
 
     def testMimeTypeArgument(self):
         postRequest(self.owlimPort, "/add?identifier=uri:record", """<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
@@ -324,8 +325,17 @@ class OwlimTest(IntegrationTestCase):
     <rdf:value>DESCRIBE</rdf:value>
 </rdf:Description></rdf:RDF>""", body)
 
+    def testAddUnicodeChars(self):
+        postRequest(self.owlimPort, "/add?identifier=uri:unicode:chars", """<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+        <rdf:Description rdf:about="uri:unicode:chars">
+            <rdfs:label>Ittzés, Gergely</rdfs:label>
+        </rdf:Description>
+    </rdf:RDF>""", parse=False)
+        json = self.query('SELECT ?label WHERE {<uri:unicode:chars> ?x ?label}')
+        self.assertEquals(1, len(json['results']['bindings']))
+        self.assertEqual('Ittzés, Gergely', json['results']['bindings'][0]['label']['value'])
 
     def query(self, query):
-        return loads(urlopen('http://localhost:%s/query?%s' % (self.owlimPort,
-            urlencode(dict(query=query)))).read())
+        u = urlopen('http://localhost:%s/query?%s' % (self.owlimPort, urlencode(dict(query=query))))
+        return loads(u.read())
 

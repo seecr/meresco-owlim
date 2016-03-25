@@ -3,7 +3,7 @@
 #
 # The Meresco Owlim package is an Owlim Triplestore based on meresco-triplestore
 #
-# Copyright (C) 2011-2015 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2011-2016 Seecr (Seek You Too B.V.) http://seecr.nl
 # Copyright (C) 2011 Seek You Too B.V. (CQ2) http://www.cq2.nl
 # Copyright (C) 2015 Stichting Kennisnet http://www.kennisnet.nl
 #
@@ -30,7 +30,7 @@ from os.path import isfile
 from sys import argv
 from glob import glob
 
-OWLIMJARS = glob("/usr/share/java/owlim-lite-java/*.jar")
+OWLIMJARS = glob("/usr/share/java/graph-db-java/*.jar")
 TRIPLESTORE_JARS = glob("/usr/share/java/meresco-triplestore/*.jar")
 MY_JARS = glob("/usr/share/java/meresco-owlim/*.jar")
 from os import system

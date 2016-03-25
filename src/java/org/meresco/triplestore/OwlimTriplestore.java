@@ -1,10 +1,8 @@
 /* begin license *
  *
- * The Meresco Owlim package consists out of a HTTP server written in Java that
- * provides access to an Owlim Triple store, as well as python bindings to
- * communicate as a client with the server.
+ * The Meresco Owlim package is an Owlim Triplestore based on meresco-triplestore
  *
- * Copyright (C) 2014 Seecr (Seek You Too B.V.) http://seecr.nl
+ * Copyright (C) 2014, 2016 Seecr (Seek You Too B.V.) http://seecr.nl
  *
  * This file is part of "Meresco Owlim"
  *
@@ -26,19 +24,64 @@
 
 package org.meresco.triplestore;
 
-import com.ontotext.trree.owlim_ext.SailImpl;
-import org.openrdf.repository.sail.SailRepository;
 import java.io.File;
+import java.io.StringReader;
+
+import org.openrdf.model.Resource;
+import org.openrdf.model.impl.LiteralImpl;
+import org.openrdf.model.impl.TreeModel;
+import org.openrdf.model.util.GraphUtil;
+import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.repository.config.RepositoryConfig;
+import org.openrdf.repository.config.RepositoryConfigSchema;
+import org.openrdf.repository.manager.LocalRepositoryManager;
+import org.openrdf.repository.sail.config.SailRepositorySchema;
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFParser;
+import org.openrdf.rio.Rio;
+import org.openrdf.rio.helpers.StatementCollector;
+
+import com.ontotext.trree.config.OWLIMSailSchema;
 
 class OwlimTriplestore extends SesameTriplestore {
 
-    public OwlimTriplestore(File directory, String storageName) {
+    private LocalRepositoryManager repositoryManager;
+    private static String REPO_CONFIG = "@prefix rep: <http://www.openrdf.org/config/repository#>."
+            + "@prefix sr: <http://www.openrdf.org/config/repository/sail#>."
+            + "@prefix sail: <http://www.openrdf.org/config/sail#>."
+            + "[] a rep:Repository ; "
+            + "rep:repositoryImpl [" 
+                + "rep:repositoryType \"graphdb:FreeSailRepository\" ;" 
+                + "sr:sailImpl [ sail:sailType \"graphdb:FreeSail\" ] "
+            + "].";
+    
+    public OwlimTriplestore(File directory, String storageName) throws Exception {
         super(directory);
-        SailImpl owlimSail = new SailImpl();
-        this.repository = new SailRepository(owlimSail);
-        owlimSail.setParameter(com.ontotext.trree.owlim_ext.Repository.PARAM_STORAGE_FOLDER, storageName);
-        owlimSail.setParameter("ruleset", "empty");
-        this.repository.setDataDir(directory);
-        startup();
+        
+        repositoryManager = new LocalRepositoryManager(directory);
+        repositoryManager.initialize();
+        
+        TreeModel graph = new TreeModel();
+
+        RDFParser rdfParser = Rio.createParser(RDFFormat.TURTLE);
+        rdfParser.setRDFHandler(new StatementCollector(graph));
+        rdfParser.parse(new StringReader(REPO_CONFIG), RepositoryConfigSchema.NAMESPACE);
+        
+        Resource repositoryNode = GraphUtil.getUniqueSubject(graph, RDF.TYPE, RepositoryConfigSchema.REPOSITORY);
+        graph.add(repositoryNode, RepositoryConfigSchema.REPOSITORYID, new LiteralImpl(storageName));
+        
+        Resource configNode = GraphUtil.getUniqueObjectResource(graph, null, SailRepositorySchema.SAILIMPL);
+        graph.add(configNode, OWLIMSailSchema.ruleset, new LiteralImpl("empty"));
+        graph.add(configNode, OWLIMSailSchema.storagefolder, new LiteralImpl(storageName));
+        
+        RepositoryConfig repositoryConfig = RepositoryConfig.create(graph, repositoryNode);
+        repositoryManager.addRepositoryConfig(repositoryConfig);
+        this.repository = repositoryManager.getRepository(storageName);
+        this.startup();
+    }
+    
+    public void shutdown() throws Exception {
+        super.shutdown();
+        this.repositoryManager.shutDown();
     }
 }

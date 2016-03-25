@@ -30,7 +30,7 @@ from simplejson import loads
 from urllib import urlencode
 from urllib2 import urlopen, Request
 from signal import SIGKILL, SIGTERM
-from time import time
+from time import time, sleep
 from threading import Thread
 from socket import error as socketError
 
@@ -107,6 +107,7 @@ class OwlimTest(IntegrationTestCase):
 
         kill(self.pids['owlim'], SIGTERM)
         waitpid(self.pids['owlim'], WNOHANG)
+        sleep(1)
         self.startOwlimServer()
 
         json = self.query('SELECT ?x WHERE {?x ?y <uri:testKillTripleStoreRecoversFromTransactionLog>}')

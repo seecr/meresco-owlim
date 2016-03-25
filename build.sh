@@ -3,7 +3,7 @@
 #
 # The Meresco Owlim package is an Owlim Triplestore based on meresco-triplestore
 #
-# Copyright (C) 2014 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2014, 2016 Seecr (Seek You Too B.V.) http://seecr.nl
 #
 # This file is part of "Meresco Owlim"
 #
@@ -34,7 +34,7 @@ if [ -d deps.d ]; then                                      # DO_NOT_DISTRIBUTE
         MERESCO_TRIPLESTORE_JARS=${FIND_RESULT}             # DO_NOT_DISTRIBUTE
     fi                                                      # DO_NOT_DISTRIBUTE
 fi                                                          # DO_NOT_DISTRIBUTE
-OWLIMJARS=$(find /usr/share/java/owlim-lite-java/ -type f -name "*.jar")
+OWLIMJARS=$(find /usr/share/java/graph-db-java/ -type f -name "*.jar")
 JARS=$(find jars -type f -name "*.jar")
 
 BUILDDIR=./build

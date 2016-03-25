@@ -1,5 +1,5 @@
-owlim-lite-java (>= 5.4)
-owlim-lite-java (<< 5.5)
+graph-db-java (>= 6.3.3)
+graph-db-java (<< 6.4)
 meresco-triplestore-client (>= 5.0)
 meresco-triplestore-client (<< 5.1)
 meresco-triplestore-server (>= 5.0)

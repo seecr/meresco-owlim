@@ -47,14 +47,21 @@ JARS=$(find ../../jars -type f -name "*.jar")
 CP="$JUNIT:$(echo $OWLIMJARS | tr ' ' ':'):$(echo $MERESCO_TRIPLESTORE_JARS | tr ' ' ':'):$(echo $JARS | tr ' ' ':'):../../build"
 
 javaFiles=$(find ../java -name "*.java")
-javac -d ${BUILDDIR} -cp $CP $javaFiles
+
+JAVA_VERSION=8
+javac=/usr/lib/jvm/java-1.${JAVA_VERSION}.0-openjdk.x86_64/bin/javac
+if [ -f /etc/debian_version ]; then
+    javac=/usr/lib/jvm/java-${JAVA_VERSION}-openjdk-amd64/bin/javac
+fi
+
+${javac} -d ${BUILDDIR} -cp $CP $javaFiles
 if [ "$?" != "0" ]; then
     echo "Build failed"
     exit 1
 fi
 
 javaFiles=$(find . -name "*.java")
-javac -d ${BUILDDIR} -cp $CP $javaFiles
+${javac} -d ${BUILDDIR} -cp $CP $javaFiles
 if [ "$?" != "0" ]; then
     echo "Test Build failed"
     exit 1

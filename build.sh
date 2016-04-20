@@ -48,7 +48,7 @@ mkdir $BUILDDIR
 
 CP="$(echo $JARS | tr ' ' ':'):$(echo $MERESCO_TRIPLESTORE_JARS | tr ' ' ':'):$(echo $OWLIMJARS | tr ' ' ':')"
 
-JAVA_VERSION=7
+JAVA_VERSION=8
 javac=/usr/lib/jvm/java-1.${JAVA_VERSION}.0-openjdk.x86_64/bin/javac
 if [ -f /etc/debian_version ]; then
     javac=/usr/lib/jvm/java-${JAVA_VERSION}-openjdk-amd64/bin/javac

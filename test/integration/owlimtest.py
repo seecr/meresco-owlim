@@ -46,7 +46,7 @@ from seecr.test.io import stderr_replaced
 class OwlimTest(IntegrationTestCase):
     def testOne(self):
         result = urlopen("http://localhost:%s/query?%s" % (self.owlimPort, urlencode(dict(query='SELECT ?x WHERE {}')))).read()
-        self.assertTrue('"vars" : [ "x" ]' in result, result)
+        self.assertEquals(["x"], loads(result)["head"]["vars"])
 
     def testAddTripleThatsNotATriple(self):
         owlimClient = HttpClient(host='localhost', port=self.owlimPort, synchronous=True)
@@ -62,7 +62,7 @@ class OwlimTest(IntegrationTestCase):
             list(compose(owlimClient.add('uri:identifier', '<invalidRdf/>')))
             self.fail("should not get here")
         except InvalidRdfXmlException, e:
-            self.assertEquals('org.openrdf.rio.RDFParseException: Not a valid (absolute) URI: #invalidRdf [line 1, column 14]', str(e))
+            self.assertTrue('org.openrdf.rio.RDFParseException: Not a valid (absolute) URI: #invalidRdf [line 1, column 14]' in str(e), str(e))
 
     def testAddInvalidIdentifier(self):
         owlimClient = HttpClient(host='localhost', port=self.owlimPort, synchronous=True)
@@ -86,6 +86,7 @@ class OwlimTest(IntegrationTestCase):
             <rdf:type>uri:testKillTripleStoreSavesState</rdf:type>
         </rdf:Description>
     </rdf:RDF>""", parse=False)
+        self.commit()
         json = self.query('SELECT ?x WHERE {?x ?y "uri:testKillTripleStoreSavesState"}')
         self.assertEquals(1, len(json['results']['bindings']))
 
@@ -102,6 +103,7 @@ class OwlimTest(IntegrationTestCase):
         </rdf:Description>
     </rdf:RDF>""", parse=False)
         postRequest(self.owlimPort, "/addTriple", "uri:subject|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|uri:testKillTripleStoreRecoversFromTransactionLog")
+        self.commit()
         json = self.query('SELECT ?x WHERE {?x ?y <uri:testKillTripleStoreRecoversFromTransactionLog>}')
         self.assertEquals(2, len(json['results']['bindings']))
 
@@ -156,6 +158,7 @@ class OwlimTest(IntegrationTestCase):
             <rdf:type>uri:testDelete</rdf:type>
         </rdf:Description>
     </rdf:RDF>""", parse=False)
+        self.commit()
         json = self.query('SELECT ?x WHERE {?x ?y "uri:testDelete"}')
         self.assertEquals(1, len(json['results']['bindings']))
 
@@ -164,12 +167,14 @@ class OwlimTest(IntegrationTestCase):
             <rdf:type>uri:testDeleteUpdated</rdf:type>
         </rdf:Description>
     </rdf:RDF>""", parse=False)
+        self.commit()
         json = self.query('SELECT ?x WHERE {?x ?y "uri:testDelete"}')
         self.assertEquals(0, len(json['results']['bindings']))
         json = self.query('SELECT ?x WHERE {?x ?y "uri:testDeleteUpdated"}')
         self.assertEquals(1, len(json['results']['bindings']))
 
         postRequest(self.owlimPort, "/delete?identifier=uri:record", "", parse=False)
+        self.commit()
         json = self.query('SELECT ?x WHERE {?x ?y "uri:testDelete"}')
         self.assertEquals(0, len(json['results']['bindings']))
         json = self.query('SELECT ?x WHERE {?x ?y "uri:testDeleteUpdated"}')
@@ -180,6 +185,7 @@ class OwlimTest(IntegrationTestCase):
             <rdf:type>uri:testDelete</rdf:type>
         </rdf:Description>
     </rdf:RDF>""", parse=False)
+        self.commit()
         json = self.query('SELECT ?x WHERE {?x ?y "uri:testDelete"}')
         self.assertEquals(1, len(json['results']['bindings']))
 
@@ -189,12 +195,14 @@ class OwlimTest(IntegrationTestCase):
 
         header, body = postRequest(self.owlimPort, "/addTriple", "uri:subject|uri:predicate|uri:object", parse=False)
         self.assertTrue("200" in header, header)
+        self.commit()
 
         json = self.query('SELECT ?obj WHERE { <uri:subject> <uri:predicate> ?obj }')
         self.assertEquals(1, len(json['results']['bindings']))
 
         header, body = postRequest(self.owlimPort, "/removeTriple", "uri:subject|uri:predicate|uri:object", parse=False)
         self.assertTrue("200" in header, header)
+        self.commit()
         json = self.query('SELECT ?obj WHERE { <uri:subject> <uri:predicate> ?obj }')
         self.assertEquals(0, len(json['results']['bindings']))
 
@@ -251,6 +259,7 @@ class OwlimTest(IntegrationTestCase):
             <rdf:type>uri:testFailingCommitKillsTripleStore</rdf:type>
         </rdf:Description>
     </rdf:RDF>""", parse=False)
+        self.commit()
 
         headers, body = getRequest(self.owlimPort, "/query", arguments={'query': 'SELECT ?x WHERE {?x ?y "uri:testFailingCommitKillsTripleStore"}'}, parse=False)
         json = loads(body)
@@ -273,6 +282,7 @@ class OwlimTest(IntegrationTestCase):
             <rdf:type>uri:test:acceptHeaders</rdf:type>
         </rdf:Description>
     </rdf:RDF>""", parse=False)
+        self.commit()
 
         request = Request('http://localhost:%s/query?%s' % (self.owlimPort, urlencode({'query': 'SELECT ?x WHERE {?x ?y "uri:test:acceptHeaders"}'})), headers={"Accept" : "application/xml"})
         contents = urlopen(request).read()
@@ -289,6 +299,7 @@ class OwlimTest(IntegrationTestCase):
             <rdf:value>Value</rdf:value>
         </rdf:Description>
     </rdf:RDF>""", parse=False)
+        self.commit()
 
         request = Request('http://localhost:%s/query?%s' % (self.owlimPort, urlencode({'query': 'SELECT ?x WHERE {?x ?y "Value"}', 'mimeType': 'application/sparql-results+xml'})))
         contents = urlopen(request).read()
@@ -312,6 +323,7 @@ class OwlimTest(IntegrationTestCase):
             <rdf:value>DESCRIBE</rdf:value>
         </rdf:Description>
     </rdf:RDF>""", parse=False)
+        self.commit()
 
         headers, body = getRequest(self.owlimPort, "/query", arguments={'query': 'DESCRIBE <uri:test:describe>'}, additionalHeaders={"Accept" : "application/rdf+xml"}, parse=False)
         self.assertTrue("Content-Type: application/rdf+xml" in headers, headers)
@@ -323,7 +335,7 @@ class OwlimTest(IntegrationTestCase):
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:fn="http://www.w3.org/2005/xpath-functions#">
 <rdf:Description rdf:about="uri:test:describe">
-    <rdf:value>DESCRIBE</rdf:value>
+    <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DESCRIBE</rdf:value>
 </rdf:Description></rdf:RDF>""", body)
 
     def testAddUnicodeChars(self):
@@ -332,6 +344,7 @@ class OwlimTest(IntegrationTestCase):
             <rdfs:label>Ittzés, Gergely</rdfs:label>
         </rdf:Description>
     </rdf:RDF>""", parse=False)
+        self.commit()
         json = self.query('SELECT ?label WHERE {<uri:unicode:chars> ?x ?label}')
         self.assertEquals(1, len(json['results']['bindings']))
         self.assertEqual('Ittzés, Gergely', json['results']['bindings'][0]['label']['value'])
@@ -340,3 +353,6 @@ class OwlimTest(IntegrationTestCase):
         u = urlopen('http://localhost:%s/query?%s' % (self.owlimPort, urlencode(dict(query=query))))
         return loads(u.read())
 
+    def commit(self):
+        header, body = postRequest(self.owlimPort, "/commit")
+        self.assertTrue("200 OK" in header.upper(), header + body)

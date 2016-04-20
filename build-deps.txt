@@ -1,8 +1,8 @@
-#wheezy:openjdk-7-jdk
-#jessie:openjdk-7-jdk
-#centos6:java-1.7.0-openjdk-devel
-#centos7:java-1.7.0-openjdk-devel
-owlim-lite-java (>= 5.4)
-owlim-lite-java (<< 5.5)
+#wheezy:openjdk-8-jdk
+#jessie:openjdk-8-jdk
+#centos6:java-1.8.0-openjdk-devel
+#centos7:java-1.8.0-openjdk-devel
+graph-db-java (>= 7.0.0)
+graph-db-java (<< 7.1)
 meresco-triplestore-server (>= 5.0)
 meresco-triplestore-server (<< 5.1)

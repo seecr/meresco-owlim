@@ -46,7 +46,6 @@ if GLOB_RESULT:                                              #DO_NOT_DISTRIBUTE
 MY_JARS = glob("%s/jars/*.jar" % projectdir) + glob("%s/*.jar" % projectdir)  #DO_NOT_DISTRIBUTE
 
 CP = ':'.join(MY_JARS + TRIPLESTORE_JARS + OWLIMJARS)
-
 argv0, args = argv[0], [arg for arg in argv if not arg.startswith('-X')]
 XOptions = [arg for arg in argv if arg.startswith('-X')]
 if not [arg for arg in XOptions if arg.startswith('-Xmx')]:
@@ -56,16 +55,15 @@ java = '/usr/bin/java'
 if 'JAVA_BIN' in environ and environ['JAVA_BIN']:
     java = environ['JAVA_BIN'] + "/java"
 
-java_version = '1.7'
+java_version = '1.8'
 if isfile('/etc/debian_version'):
     if int(open('/etc/debian_version').read()[0]) >= 8:
-        java_version = '1.7'
+        java_version = '1.8'
 
 if system("%s -version 2>&1 | grep '%s' > /dev/null" % (java, java_version)) != 0:
     print "Java version should be java %s; You could specify a different java with JAVA_BIN" % java_version
     exit(1)
 
-print CP
 execv(
     java,
     [argv0] + XOptions + [

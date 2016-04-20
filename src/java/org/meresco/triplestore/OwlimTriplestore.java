@@ -49,37 +49,41 @@ class OwlimTriplestore extends SesameTriplestore {
     private static String REPO_CONFIG = "@prefix rep: <http://www.openrdf.org/config/repository#>."
             + "@prefix sr: <http://www.openrdf.org/config/repository/sail#>."
             + "@prefix sail: <http://www.openrdf.org/config/sail#>."
+            + "@prefix owlim: <http://www.ontotext.com/trree/owlim#>."
             + "[] a rep:Repository ; "
-            + "rep:repositoryImpl [" 
-                + "rep:repositoryType \"graphdb:FreeSailRepository\" ;" 
-                + "sr:sailImpl [ sail:sailType \"graphdb:FreeSail\" ] "
-            + "].";
-    
+            + "rep:repositoryImpl ["
+                + "rep:repositoryType \"graphdb:FreeSailRepository\" ;"
+                + "sr:sailImpl [ "
+                    + "sail:sailType \"graphdb:FreeSail\" ; "
+                    + "owlim:contexts-index-size \"10000000\" ;"
+                    + "owlim:enable-context-index \"true\"; "
+            + "] ].";
+
     public OwlimTriplestore(File directory, String storageName) throws Exception {
         super(directory);
-        
+
         repositoryManager = new LocalRepositoryManager(directory);
         repositoryManager.initialize();
-        
+
         TreeModel graph = new TreeModel();
 
         RDFParser rdfParser = Rio.createParser(RDFFormat.TURTLE);
         rdfParser.setRDFHandler(new StatementCollector(graph));
         rdfParser.parse(new StringReader(REPO_CONFIG), RepositoryConfigSchema.NAMESPACE);
-        
+
         Resource repositoryNode = GraphUtil.getUniqueSubject(graph, RDF.TYPE, RepositoryConfigSchema.REPOSITORY);
         graph.add(repositoryNode, RepositoryConfigSchema.REPOSITORYID, new LiteralImpl(storageName));
-        
+
         Resource configNode = GraphUtil.getUniqueObjectResource(graph, null, SailRepositorySchema.SAILIMPL);
         graph.add(configNode, OWLIMSailSchema.ruleset, new LiteralImpl("empty"));
         graph.add(configNode, OWLIMSailSchema.storagefolder, new LiteralImpl(storageName));
-        
+
         RepositoryConfig repositoryConfig = RepositoryConfig.create(graph, repositoryNode);
         repositoryManager.addRepositoryConfig(repositoryConfig);
         this.repository = repositoryManager.getRepository(storageName);
         this.startup();
     }
-    
+
     public void shutdown() throws Exception {
         super.shutdown();
         this.repositoryManager.shutDown();

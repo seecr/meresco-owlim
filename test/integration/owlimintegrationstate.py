@@ -2,7 +2,7 @@
 #
 # The Meresco Owlim package is an Owlim Triplestore based on meresco-triplestore
 #
-# Copyright (C) 2013-2014 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2013-2014, 2016 Seecr (Seek You Too B.V.) http://seecr.nl
 #
 # This file is part of "Meresco Owlim"
 #

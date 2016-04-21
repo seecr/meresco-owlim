@@ -3,7 +3,7 @@
 #
 # The Meresco Owlim package is an Owlim Triplestore based on meresco-triplestore
 #
-# Copyright (C) 2014 Seecr (Seek You Too B.V.) http://seecr.nl
+# Copyright (C) 2014, 2016 Seecr (Seek You Too B.V.) http://seecr.nl
 #
 # This file is part of "Meresco Owlim"
 #
@@ -25,6 +25,8 @@
 
 export LANG=en_US.UTF-8
 export PYTHONPATH=.:$PYTHONPATH
+export JAVA_BIN=/usr/lib/jvm/java-1.8.0-openjdk-amd64/bin
+
 pycmd="python2.6"
 if [ -e /usr/bin/python2.7 ]; then
     pycmd="python2.7"

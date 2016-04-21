@@ -253,29 +253,6 @@ class OwlimTest(IntegrationTestCase):
         finally:
             postRequest(self.owlimPort, "/delete?identifier=uri:record", "")
 
-    def testFailingCommit(self):
-        postRequest(self.owlimPort, "/add?identifier=uri:record", """<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-        <rdf:Description>
-            <rdf:type>uri:testFailingCommitKillsTripleStore</rdf:type>
-        </rdf:Description>
-    </rdf:RDF>""", parse=False)
-        self.commit()
-
-        headers, body = getRequest(self.owlimPort, "/query", arguments={'query': 'SELECT ?x WHERE {?x ?y "uri:testFailingCommitKillsTripleStore"}'}, parse=False)
-        json = loads(body)
-        self.assertEquals(1, len(json['results']['bindings']))
-
-        system("chmod u-w %s" % self.owlimDataDir) #make owlim's dir inaccessible to force failure
-        try:
-            header, body = postRequest(self.owlimPort, "/add?identifier=uri:record", """<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-            <rdf:Description>
-                <rdf:type>uri:testFailingCommitKillsTripleStore2</rdf:type>
-            </rdf:Description>
-        </rdf:RDF>""", parse=False)
-            self.assertTrue("500" in header, header)
-        finally:
-            system("chmod u+w %s" % self.owlimDataDir)
-
     def testAcceptHeaders(self):
         postRequest(self.owlimPort, "/add?identifier=uri:record", """<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
         <rdf:Description>

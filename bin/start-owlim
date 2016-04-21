@@ -49,7 +49,7 @@ CP = ':'.join(MY_JARS + TRIPLESTORE_JARS + OWLIMJARS)
 argv0, args = argv[0], [arg for arg in argv if not arg.startswith('-X')]
 XOptions = [arg for arg in argv if arg.startswith('-X')]
 if not [arg for arg in XOptions if arg.startswith('-Xmx')]:
-    XOptions.append('-Xmx1536m')
+    XOptions.append('-Xmx3G')
 
 java = '/usr/bin/java'
 if 'JAVA_BIN' in environ and environ['JAVA_BIN']:

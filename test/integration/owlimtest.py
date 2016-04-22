@@ -128,29 +128,6 @@ class OwlimTest(IntegrationTestCase):
         self.assertTrue('Shutdown completed.' in open(join(self.integrationTempdir, 'stdouterr-owlim.log')).read())
         self.startOwlimServer()
 
-    def xxxtestKillAndRestoreLargeTransactionLogTiming(self):
-        postRequest(self.owlimPort, "/add?identifier=uri:record", """<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-        <rdf:Description>
-            <rdf:type>uri:testKillTripleStoreRecoversFromTransactionLog</rdf:type>
-        </rdf:Description>
-    </rdf:RDF>""", parse=False)
-        json = self.query('SELECT ?x WHERE {?x ?y "uri:testKillTripleStoreRecoversFromTransactionLog"}')
-        self.assertEquals(1, len(json['results']['bindings']))
-
-        kill(self.pids['owlim'], SIGKILL)
-        waitpid(self.pids['owlim'], WNOHANG)
-
-        bigTestTransactionLogPath = '/home/zp/owlim_translog_1348054481457000' # or whatever path to big transaction log
-
-        rmtree(join(self.integrationTempdir, 'owlim-data/transactionLog'))
-        isdir("integration/transactionLog") or makedirs("integration/transactionLog")
-        symlink(abspath("integration/transactionLog"), join(self.integrationTempdir, 'owlim-data/transactionLog'))
-        target = join(self.integrationTempdir, 'owlim-data/transactionLog/current')
-        copyfile(bigTestTransactionLogPath, target)
-        print time()
-        self.startOwlimServer()
-        print time()
-
     def testDeleteRecord(self):
         postRequest(self.owlimPort, "/add?identifier=uri:record", """<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
         <rdf:Description>

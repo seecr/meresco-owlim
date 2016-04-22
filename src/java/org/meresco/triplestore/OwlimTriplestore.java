@@ -80,7 +80,6 @@ class OwlimTriplestore extends SesameTriplestore {
         graph.add(repositoryNode, RepositoryConfigSchema.REPOSITORYID, new LiteralImpl(storageName));
 
         Resource configNode = GraphUtil.getUniqueObjectResource(graph, null, SailRepositorySchema.SAILIMPL);
-        graph.add(configNode, OWLIMSailSchema.storagefolder, new LiteralImpl(storageName));
         if (cacheMemory != null)
             graph.add(configNode, OWLIMSailSchema.cacheMemory, new LiteralImpl(cacheMemory));
         if (entityIndexSize != null)

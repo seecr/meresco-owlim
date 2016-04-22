@@ -44,14 +44,13 @@ class OwlimIntegrationState(IntegrationState):
             system('mkdir --parents ' + self.owlimDataDir)
 
     def setUp(self):
-        flags = ['disableTransactionLog'] if self.stateName == 'noTxLog' else []
-        self.startOwlimServer(flags)
+        self.startOwlimServer()
 
     def binDir(self):
         return serverBinDir
 
-    def startOwlimServer(self, flags=[]):
-        self._startServer('owlim', self.binPath('start-owlim'), 'http://localhost:%s/query' % self.owlimPort, port=self.owlimPort, stateDir=self.owlimDataDir, name='owlim', flagOptions=flags)
+    def startOwlimServer(self):
+        self._startServer('owlim', self.binPath('start-owlim'), 'http://localhost:%s/query' % self.owlimPort, port=self.owlimPort, stateDir=self.owlimDataDir)
 
     def restartOwlimServer(self):
         self.stopOwlimServer()

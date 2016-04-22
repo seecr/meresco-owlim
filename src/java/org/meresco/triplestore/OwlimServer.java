@@ -59,9 +59,9 @@ public class OwlimServer {
         options.addOption(option);
 
         // Triplestore name
-        option = new Option("n", "name", true, "Name of the triplestore");
+        option = new Option("n", "name", true, "Name of the triplestore. Defaults to triplestore");
         option.setType(String.class);
-        option.setRequired(true);
+        option.setRequired(false);
         options.addOption(option);
 
         // Triplestore location
@@ -93,6 +93,8 @@ public class OwlimServer {
         Integer port = new Integer(commandLine.getOptionValue("p"));
         String storeLocation = commandLine.getOptionValue("d");
         String storeName = commandLine.getOptionValue("n");
+        if (storeName == null)
+            storeName = "triplestore";
         String cacheMemory = commandLine.getOptionValue("cacheMemory");
         String entityIndexSize = commandLine.getOptionValue("entityIndexSize");
 

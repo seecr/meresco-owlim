@@ -80,31 +80,30 @@ class OwlimTest(IntegrationTestCase):
         except MalformedQueryException, e:
             self.assertTrue(str(e).startswith('org.openrdf.query.MalformedQueryException: Encountered "<EOF>"'), str(e))
 
-    def testKillTripleStoreSavesState(self):
+    def testRestartTripleStoreSavesState(self):
         postRequest(self.owlimPort, "/add?identifier=uri:record", """<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
         <rdf:Description>
-            <rdf:type>uri:testKillTripleStoreSavesState</rdf:type>
+            <rdf:type>uri:testRestartTripleStoreSavesState</rdf:type>
         </rdf:Description>
     </rdf:RDF>""", parse=False)
         self.commit()
-        json = self.query('SELECT ?x WHERE {?x ?y "uri:testKillTripleStoreSavesState"}')
+        json = self.query('SELECT ?x WHERE {?x ?y "uri:testRestartTripleStoreSavesState"}')
         self.assertEquals(1, len(json['results']['bindings']))
 
-        rmtree(join(self.owlimDataDir, "transactionLog"))
         self.restartOwlimServer()
 
-        json = self.query('SELECT ?x WHERE {?x ?y "uri:testKillTripleStoreSavesState"}')
+        json = self.query('SELECT ?x WHERE {?x ?y "uri:testRestartTripleStoreSavesState"}')
         self.assertEquals(1, len(json['results']['bindings']))
 
-    def testKillTripleStoreRecoversFromTransactionLog(self):
+    def testKillTripleStoreRecovers(self):
         postRequest(self.owlimPort, "/add?identifier=uri:record", """<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
         <rdf:Description>
-            <rdf:type rdf:resource="uri:testKillTripleStoreRecoversFromTransactionLog"/>
+            <rdf:type rdf:resource="uri:testKillTripleStoreRecovers"/>
         </rdf:Description>
     </rdf:RDF>""", parse=False)
-        postRequest(self.owlimPort, "/addTriple", "uri:subject|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|uri:testKillTripleStoreRecoversFromTransactionLog")
+        postRequest(self.owlimPort, "/addTriple", "uri:subject|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|uri:testKillTripleStoreRecovers")
         self.commit()
-        json = self.query('SELECT ?x WHERE {?x ?y <uri:testKillTripleStoreRecoversFromTransactionLog>}')
+        json = self.query('SELECT ?x WHERE {?x ?y <uri:testKillTripleStoreRecovers>}')
         self.assertEquals(2, len(json['results']['bindings']))
 
         kill(self.pids['owlim'], SIGTERM)
@@ -112,7 +111,7 @@ class OwlimTest(IntegrationTestCase):
         sleep(1)
         self.startOwlimServer()
 
-        json = self.query('SELECT ?x WHERE {?x ?y <uri:testKillTripleStoreRecoversFromTransactionLog>}')
+        json = self.query('SELECT ?x WHERE {?x ?y <uri:testKillTripleStoreRecovers>}')
         self.assertEquals(2, len(json['results']['bindings']))
 
     @stderr_replaced

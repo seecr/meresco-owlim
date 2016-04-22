@@ -1,10 +1,8 @@
 /* begin license *
  *
- * The Meresco Owlim package consists out of a HTTP server written in Java that
- * provides access to an Owlim Triple store, as well as python bindings to
- * communicate as a client with the server.
+ * The Meresco Owlim package is an Owlim Triplestore based on meresco-triplestore
  *
- * Copyright (C) 2011-2014 Seecr (Seek You Too B.V.) http://seecr.nl
+ * Copyright (C) 2011-2014, 2016 Seecr (Seek You Too B.V.) http://seecr.nl
  * Copyright (C) 2011 Seek You Too B.V. (CQ2) http://www.cq2.nl
  *
  * This file is part of "Meresco Owlim"
@@ -72,8 +70,14 @@ public class OwlimServer {
         option.setRequired(true);
         options.addOption(option);
 
-        option = new Option(null, "disableTransactionLog", false, "Disable use of transactionlog; Server must be shutdown to persist.");
-        option.setType(Boolean.class);
+        option = new Option(null, "cacheMemory", true, "Cache size; Usually half -Xmx");
+        option.setType(String.class);
+        option.setRequired(false);
+        options.addOption(option);
+
+        option = new Option(null, "entityIndexSize", true, "Entity index size. Usually half the number of entities (Uri's, blank nodes, literals). Cannot be changed after indexing.");
+        option.setType(String.class);
+        option.setRequired(false);
         options.addOption(option);
 
         PosixParser parser = new PosixParser();
@@ -89,7 +93,8 @@ public class OwlimServer {
         Integer port = new Integer(commandLine.getOptionValue("p"));
         String storeLocation = commandLine.getOptionValue("d");
         String storeName = commandLine.getOptionValue("n");
-        Boolean disableTransactionLog = commandLine.hasOption("disableTransactionLog");
+        String cacheMemory = commandLine.getOptionValue("cacheMemory");
+        String entityIndexSize = commandLine.getOptionValue("entityIndexSize");
 
         if (Charset.defaultCharset() != Charset.forName("UTF-8")) {
         	System.err.println("file.encoding must be UTF-8.");
@@ -97,22 +102,19 @@ public class OwlimServer {
         }
 
         long startTime = System.currentTimeMillis();
-        Triplestore tripleStore = new OwlimTriplestore(new File(storeLocation), storeName);
+        Triplestore tripleStore = new OwlimTriplestore(new File(storeLocation), storeName, cacheMemory, entityIndexSize);
         System.out.println("Starting took " + (System.currentTimeMillis() - startTime) / 1000 + " seconds");
-        if (!disableTransactionLog) {
-        	tripleStore = new TransactionLog(tripleStore, new File(storeLocation));
-        }
-        
+
         ExecutorThreadPool pool = new ExecutorThreadPool(50, 200, 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(1000));
         Server server = new Server(pool);
-        
+
         ContextHandler context = new ContextHandler("/");
         context.setHandler(new HttpHandler(tripleStore));
-        
+
         ServerConnector http = new ServerConnector(server, new HttpConnectionFactory());
         http.setPort(port);
         server.addConnector(http);
-        
+
         registerShutdownHandler(tripleStore, server);
 
         server.setHandler(context);

@@ -55,23 +55,16 @@ class OwlimTriplestore extends SesameTriplestore {
                 + "rep:repositoryType \"graphdb:FreeSailRepository\" ;"
                 + "sr:sailImpl [ "
                     + "sail:sailType \"graphdb:FreeSail\" ; "
-                    + "owlim:contexts-index-size \"10000000\" ;"
                     + "owlim:enable-context-index \"true\"; "
                     + "owlim:ruleset \"empty\" ;"
-
-                    + "owlim:cache-memory \"2G\";"
-                    + "owlim:tuple-index-memory \"1536m\";"
-
+                    + "owlim:disable-sameAs \"true\" ;"
                     + "owlim:enablePredicateList \"true\" ;"
-                    + "owlim:predicate-memory \"80m\" ;"
-
                     + "owlim:fts-memory \"0\" ;"
-
                     + "owlim:in-memory-literal-properties \"true\" ;"
                     + "owlim:enable-literal-index \"true\" ;"
             + "] ].";
 
-    public OwlimTriplestore(File directory, String storageName) throws Exception {
+    public OwlimTriplestore(File directory, String storageName, String cacheMemory, String entityIndexSize) throws Exception {
         super(directory);
 
         repositoryManager = new LocalRepositoryManager(directory);
@@ -88,6 +81,10 @@ class OwlimTriplestore extends SesameTriplestore {
 
         Resource configNode = GraphUtil.getUniqueObjectResource(graph, null, SailRepositorySchema.SAILIMPL);
         graph.add(configNode, OWLIMSailSchema.storagefolder, new LiteralImpl(storageName));
+        if (cacheMemory != null)
+            graph.add(configNode, OWLIMSailSchema.cacheMemory, new LiteralImpl(cacheMemory));
+        if (entityIndexSize != null)
+            graph.add(configNode, OWLIMSailSchema.entityindexsize, new LiteralImpl(entityIndexSize));
 
         RepositoryConfig repositoryConfig = RepositoryConfig.create(graph, repositoryNode);
         repositoryManager.addRepositoryConfig(repositoryConfig);

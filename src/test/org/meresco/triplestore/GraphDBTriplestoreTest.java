@@ -57,6 +57,7 @@ public class GraphDBTriplestoreTest {
     @Test
     public void testGetNamespaces() throws Exception {
         ts.add("uri:id0", rdf, RDFFormat.RDFXML);
+        ts.realCommit();
         List<Namespace> namespacesList = ts.getNamespaces();
         List<String> prefixes = new ArrayList<>();
         for (Namespace n: namespacesList)
@@ -71,16 +72,20 @@ public class GraphDBTriplestoreTest {
     public void testAddRemoveTriple() throws Exception {
         long startingPoint = ts.size();
         ts.addTriple("uri:subj|uri:pred|uri:obj");
+        ts.realCommit();
         assertEquals(startingPoint + 1, ts.size());
         ts.removeTriple("uri:subj|uri:pred|uri:obj");
+        ts.realCommit();
         assertEquals(startingPoint, ts.size());
     }
 
     @Test
     public void testDelete() throws Exception {
         ts.add("uri:id0", rdf, RDFFormat.RDFXML);
+        ts.realCommit();
         long startingPoint = ts.size();
         ts.delete("uri:id0");
+        ts.realCommit();
         assertEquals(startingPoint - 2, ts.size());
     }
 
@@ -89,8 +94,9 @@ public class GraphDBTriplestoreTest {
         String answer = null;
 
         ts.add("uri:id0", rdf, RDFFormat.RDFXML);
+        ts.realCommit();
         answer = ts.executeTupleQuery("SELECT ?x ?y ?z WHERE {?x ?y ?z}", TupleQueryResultFormat.JSON);
-        assertTrue(answer.indexOf("\"z\" : {\n        \"type\" : \"literal\",\n        \"value\" : \"A.M. Özman Yürekli\"") > -1);
+        assertTrue(answer.indexOf("\"value\" : \"A.M. Özman Yürekli\"") > -1);
         assertTrue(answer.endsWith("\n}"));
     }
 
@@ -99,6 +105,7 @@ public class GraphDBTriplestoreTest {
         String answer = null;
 
         ts.add("uri:id0", rdf, RDFFormat.RDFXML);
+        ts.realCommit();
         answer = ts.executeTupleQuery("SELECT ?x ?y ?z WHERE {?x ?y ?z}", TupleQueryResultFormat.SPARQL);
         assertTrue(answer.startsWith("<?xml"));
         assertTrue(answer.indexOf("<literal>A.M. Özman Yürekli</literal>") > -1);
@@ -144,6 +151,7 @@ public class GraphDBTriplestoreTest {
         ts = new GraphDBTriplestore(tempdir, "storageName", null, null, "0");
         ts.startup();
         ts.addTriple("uri:subj|uri:pred|uri:obj");
+        ts.realCommit();
         ts.export("identifier");
         ts.shutdown();
         File backup = new File(new File(tempdir, "backups"), "backup-identifier.trig.gz");
@@ -170,6 +178,7 @@ public class GraphDBTriplestoreTest {
     public void testImport() throws Exception {
         long startingPoint = ts.size();
         ts.importTrig(trig);
+        ts.realCommit();
         assertEquals(startingPoint + 1, ts.size());
     }
 }

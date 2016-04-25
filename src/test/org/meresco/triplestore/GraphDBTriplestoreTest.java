@@ -1,29 +1,4 @@
-/* begin license *
- *
- * The Meresco Owlim package consists out of a HTTP server written in Java that
- * provides access to an Owlim Triple store, as well as python bindings to
- * communicate as a client with the server.
- *
- * Copyright (C) 2011-2014 Seecr (Seek You Too B.V.) http://seecr.nl
- * Copyright (C) 2011 Seek You Too B.V. (CQ2) http://www.cq2.nl
- *
- * This file is part of "Meresco Owlim"
- *
- * "Meresco Owlim" is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * "Meresco Owlim" is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with "Meresco Owlim"; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- *
- * end license */
+/* begin licenseB* end license */
 
 package org.meresco.triplestore;
 
@@ -54,14 +29,14 @@ import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.impl.LiteralImpl;
 import org.openrdf.rio.RDFFormat;
 
-public class OwlimTriplestoreTest {
-    OwlimTriplestore ts;
+public class GraphDBTriplestoreTest {
+    GraphDBTriplestore ts;
     File tempdir;
 
     @Before
     public void setUp() throws Exception {
         tempdir = createTempDirectory();
-        ts = new OwlimTriplestore(tempdir, "storageName");
+        ts = new GraphDBTriplestore(tempdir, "storageName", null, null, "0");
     }
 
     @After
@@ -87,7 +62,7 @@ public class OwlimTriplestoreTest {
         for (Namespace n: namespacesList)
             prefixes.add(n.getPrefix());
         assertEquals(7, namespacesList.size());
-        
+
         assertTrue(prefixes.contains("rdfs"));
         assertTrue(prefixes.contains("exterms"));
     }
@@ -134,7 +109,7 @@ public class OwlimTriplestoreTest {
     public void testShutdown() throws Exception {
         ts.add("uri:id0", rdf, RDFFormat.RDFXML);
         ts.shutdown();
-        OwlimTriplestore ts = new OwlimTriplestore(tempdir, "storageName");
+        GraphDBTriplestore ts = new GraphDBTriplestore(tempdir, "storageName", null, null, "0");
         assertEquals(2, ts.size());
         ts.shutdown();
     }
@@ -142,7 +117,7 @@ public class OwlimTriplestoreTest {
     @Ignore
     public void testShutdownFails() throws Exception {
         File tsPath = new File(tempdir, "anotherOne");
-        ts = new OwlimTriplestore(tempdir, "anotherOne");
+        ts = new GraphDBTriplestore(tempdir, "anotherOne", null, null, "0");
         ts.shutdown();
         ts.startup();
         File contextFile = new File(tsPath, "Contexts.ids");
@@ -166,7 +141,7 @@ public class OwlimTriplestoreTest {
     @Test
     public void testExport() throws Exception {
         ts.shutdown();
-        ts = new OwlimTriplestore(tempdir, "storageName");
+        ts = new GraphDBTriplestore(tempdir, "storageName", null, null, "0");
         ts.startup();
         ts.addTriple("uri:subj|uri:pred|uri:obj");
         ts.export("identifier");

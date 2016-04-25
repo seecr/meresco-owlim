@@ -43,7 +43,7 @@ import org.openrdf.rio.helpers.StatementCollector;
 
 import com.ontotext.trree.config.OWLIMSailSchema;
 
-class OwlimTriplestore extends SesameTriplestore {
+class GraphDBTriplestore extends SesameTriplestore {
 
     private LocalRepositoryManager repositoryManager;
     private static String REPO_CONFIG = "@prefix rep: <http://www.openrdf.org/config/repository#>."
@@ -62,9 +62,10 @@ class OwlimTriplestore extends SesameTriplestore {
                     + "owlim:fts-memory \"0\" ;"
                     + "owlim:in-memory-literal-properties \"true\" ;"
                     + "owlim:enable-literal-index \"true\" ;"
+                    + "owlim:throw-QueryEvaluationException-on-timeout \"true\" ;"
             + "] ].";
 
-    public OwlimTriplestore(File directory, String storageName, String cacheMemory, String entityIndexSize) throws Exception {
+    public GraphDBTriplestore(File directory, String storageName, String cacheMemory, String entityIndexSize, String queryTimeout) throws Exception {
         super(directory);
 
         repositoryManager = new LocalRepositoryManager(directory);
@@ -84,6 +85,8 @@ class OwlimTriplestore extends SesameTriplestore {
             graph.add(configNode, OWLIMSailSchema.cacheMemory, new LiteralImpl(cacheMemory));
         if (entityIndexSize != null)
             graph.add(configNode, OWLIMSailSchema.entityindexsize, new LiteralImpl(entityIndexSize));
+
+        graph.add(configNode, OWLIMSailSchema.queryTimeout, new LiteralImpl(queryTimeout));
 
         RepositoryConfig repositoryConfig = RepositoryConfig.create(graph, repositoryNode);
         repositoryManager.addRepositoryConfig(repositoryConfig);

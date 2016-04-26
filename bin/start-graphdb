@@ -70,5 +70,5 @@ execv(
         '-Dfile.encoding=UTF-8',
         '-DentityExpansionLimit=1024000',
         '-cp', CP,
-        'org.meresco.triplestore.OwlimServer'
+        'org.meresco.triplestore.GraphDBServer'
     ] + args)

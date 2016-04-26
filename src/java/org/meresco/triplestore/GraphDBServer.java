@@ -46,7 +46,7 @@ import org.apache.commons.cli.MissingOptionException;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
 
-public class OwlimServer {
+public class GraphDBServer {
     public static void main(String[] args) throws Exception {
         Option option;
 
@@ -91,7 +91,7 @@ public class OwlimServer {
             commandLine = parser.parse(options, args);
         } catch (MissingOptionException e) {
             HelpFormatter helpFormatter = new HelpFormatter();
-            helpFormatter.printHelp("start-owlim" , options);
+            helpFormatter.printHelp("start-graphdb" , options);
             System.exit(1);
         }
 

@@ -76,11 +76,21 @@ public class GraphDBServer {
         options.addOption(option);
 
         option = new Option(null, "entityIndexSize", true, "Entity index size. Usually half the number of entities (Uri's, blank nodes, literals). Cannot be changed after indexing.");
-        option.setType(String.class);
+        option.setType(Integer.class);
         option.setRequired(false);
         options.addOption(option);
 
         option = new Option(null, "queryTimeout", true, "Query timeout in seconds. Defaults to 0 (no limit)");
+        option.setType(Integer.class);
+        option.setRequired(false);
+        options.addOption(option);
+
+        option = new Option(null, "maxCommitCount", true, "Max number of commits for updates.");
+        option.setType(Integer.class);
+        option.setRequired(false);
+        options.addOption(option);
+
+        option = new Option(null, "maxCommitTimeout", true, "Maximum seconds after update for a commit.");
         option.setType(Integer.class);
         option.setRequired(false);
         options.addOption(option);
@@ -105,6 +115,8 @@ public class GraphDBServer {
         String queryTimeout = commandLine.getOptionValue("queryTimeout");
         if (queryTimeout == null)
             queryTimeout = "0";
+        String maxCommitCount = commandLine.getOptionValue("maxCommitCount");
+        String maxCommitTimeout = commandLine.getOptionValue("maxCommitTimeout");
 
         if (Charset.defaultCharset() != Charset.forName("UTF-8")) {
         	System.err.println("file.encoding must be UTF-8.");
@@ -112,7 +124,11 @@ public class GraphDBServer {
         }
 
         long startTime = System.currentTimeMillis();
-        Triplestore tripleStore = new GraphDBTriplestore(new File(storeLocation), storeName, cacheMemory, entityIndexSize, queryTimeout);
+        GraphDBTriplestore tripleStore = new GraphDBTriplestore(new File(storeLocation), storeName, cacheMemory, entityIndexSize, queryTimeout);
+        if (maxCommitCount != null)
+            tripleStore.setMaxCommitCount(Integer.parseInt(maxCommitCount));
+        if (maxCommitTimeout != null)
+            tripleStore.setMaxCommitTimeout(Integer.parseInt(maxCommitTimeout));
 
         ExecutorThreadPool pool = new ExecutorThreadPool(50, 200, 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(1000));
         Server server = new Server(pool);

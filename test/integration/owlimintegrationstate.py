@@ -50,7 +50,7 @@ class OwlimIntegrationState(IntegrationState):
         return serverBinDir
 
     def startGraphDBServer(self):
-        self._startServer('graphdb', self.binPath('start-graphdb'), 'http://localhost:%s/query' % self.graphdbPort, port=self.graphdbPort, stateDir=self.graphdbDataDir)
+        self._startServer('graphdb', self.binPath('start-graphdb'), 'http://localhost:%s/query' % self.graphdbPort, port=self.graphdbPort, stateDir=self.graphdbDataDir, cacheMemory="1G", entityIndexSize="1000000", queryTimeout=10, maxCommitCount=1000, maxCommitTimeout=60)
 
     def restartGraphDBServer(self):
         self.stopGraphDBServer()

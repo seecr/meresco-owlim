@@ -1,5 +1,5 @@
 graph-db-java (>= 7.0.0)
-graph-db-java (<< 7.1)
+graph-db-java (<< 7.3)
 meresco-triplestore-client (>= 5.2)
 meresco-triplestore-client (<< 5.3)
 meresco-triplestore-server (>= 5.2)

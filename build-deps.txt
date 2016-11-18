@@ -4,5 +4,5 @@
 #centos7:java-1.8.0-openjdk-devel
 graph-db-java (>= 7.0.0)
 graph-db-java (<< 7.3)
-meresco-triplestore-server (>= 5.1)
-meresco-triplestore-server (<< 5.2)
+meresco-triplestore-server (>= 5.2)
+meresco-triplestore-server (<< 5.3)

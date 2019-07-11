@@ -57,8 +57,11 @@ if 'JAVA_BIN' in environ and environ['JAVA_BIN']:
 
 java_version = '1.8'
 if isfile('/etc/debian_version'):
-    if int(open('/etc/debian_version').read()[0]) >= 8:
+    debian_version = int(open('/etc/debian_version').read().split('.')[0])
+    if debian_version < 10:
         java_version = '1.8'
+    elif debian_version >= 10:
+        java_version = '11'
 
 if system("%s -version 2>&1 | grep '%s' > /dev/null" % (java, java_version)) != 0:
     print "Java version should be java %s; You could specify a different java with JAVA_BIN" % java_version

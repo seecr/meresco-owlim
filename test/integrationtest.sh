@@ -25,16 +25,17 @@
 
 export LANG=en_US.UTF-8
 export PYTHONPATH=.:$PYTHONPATH
-export JAVA_BIN=/usr/lib/jvm/java-1.8.0-openjdk-amd64/bin
+#export JAVA_BIN=/usr/lib/jvm/java-1.8.0-openjdk-amd64/bin
 
-pycmd="python2.6"
-if [ -e /usr/bin/python2.7 ]; then
-    pycmd="python2.7"
-fi
+# source CLASSPATH
+#. ../bin/classpath.sh ..
+
+pycmd="python3.7"
+
 option=$1
-if [ "${option:0:10}" == "--python2." ]; then
+if [ "${option:0:10}" == "--python" ]; then
     shift
-    pycmd="${option:2}"
+    pycmd="${option:3}"
 fi
 echo Using Python version: $pycmd
 echo "================ $pycmd _integrationtest.py $@ ================"

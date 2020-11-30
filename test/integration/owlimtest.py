@@ -26,8 +26,8 @@
 from os.path import join
 from os import kill, waitpid, WNOHANG
 from simplejson import loads
-from urllib import urlencode
-from urllib2 import urlopen, Request
+from urllib.parse import urlencode
+from urllib.request import urlopen, Request
 from signal import SIGTERM
 from time import time, sleep
 from threading import Thread
@@ -44,22 +44,22 @@ from seecr.test.io import stderr_replaced
 class OwlimTest(IntegrationTestCase):
     def testOne(self):
         result = urlopen("http://localhost:%s/query?%s" % (self.graphdbPort, urlencode(dict(query='SELECT ?x WHERE {}')))).read()
-        self.assertEquals(["x"], loads(result)["head"]["vars"])
+        self.assertEqual(["x"], loads(result)["head"]["vars"])
 
     def testAddTripleThatsNotATriple(self):
         owlimClient = HttpClient(host='localhost', port=self.graphdbPort, synchronous=True)
         try:
             list(compose(owlimClient.addTriple('uri:subject', 'uri:predicate', '')))
             self.fail("should not get here")
-        except ValueError, e:
-            self.assertEquals('java.lang.IllegalArgumentException: Not a triple: "uri:subject|uri:predicate|"', str(e))
+        except ValueError as e:
+            self.assertEqual('java.lang.IllegalArgumentException: Not a triple: "uri:subject|uri:predicate|"', str(e))
 
     def testAddInvalidRdf(self):
         owlimClient = HttpClient(host='localhost', port=self.graphdbPort, synchronous=True)
         try:
             list(compose(owlimClient.add('uri:identifier', '<invalidRdf/>')))
             self.fail("should not get here")
-        except InvalidRdfXmlException, e:
+        except InvalidRdfXmlException as e:
             self.assertTrue('org.openrdf.rio.RDFParseException: Not a valid (absolute) URI: #invalidRdf [line 1, column 14]' in str(e), str(e))
 
     def testAddInvalidIdentifier(self):
@@ -67,15 +67,15 @@ class OwlimTest(IntegrationTestCase):
         try:
             list(compose(owlimClient.add('identifier', '<ignore/>')))
             self.fail("should not get here")
-        except ValueError, e:
-            self.assertEquals('java.lang.IllegalArgumentException: Not a valid (absolute) URI: identifier', str(e))
+        except ValueError as e:
+            self.assertEqual('java.lang.IllegalArgumentException: Not a valid (absolute) URI: identifier', str(e))
 
     def testInvalidSparql(self):
         owlimClient = HttpClient(host='localhost', port=self.graphdbPort, synchronous=True)
         try:
             list(compose(owlimClient.executeQuery("""select ?x""")))
             self.fail("should not get here")
-        except MalformedQueryException, e:
+        except MalformedQueryException as e:
             self.assertTrue(str(e).startswith('org.openrdf.query.MalformedQueryException: Encountered "<EOF>"'), str(e))
 
     def testRestartTripleStoreSavesState(self):
@@ -86,12 +86,12 @@ class OwlimTest(IntegrationTestCase):
     </rdf:RDF>""", parse=False)
         self.commit()
         json = self.query('SELECT ?x WHERE {?x ?y "uri:testRestartTripleStoreSavesState"}')
-        self.assertEquals(1, len(json['results']['bindings']))
+        self.assertEqual(1, len(json['results']['bindings']))
 
         self.restartGraphDBServer()
 
         json = self.query('SELECT ?x WHERE {?x ?y "uri:testRestartTripleStoreSavesState"}')
-        self.assertEquals(1, len(json['results']['bindings']))
+        self.assertEqual(1, len(json['results']['bindings']))
 
     def testKillTripleStoreRecovers(self):
         postRequest(self.graphdbPort, "/add?identifier=uri:record", """<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
@@ -102,7 +102,7 @@ class OwlimTest(IntegrationTestCase):
         postRequest(self.graphdbPort, "/addTriple", "uri:subject|http://www.w3.org/1999/02/22-rdf-syntax-ns#type|uri:testKillTripleStoreRecovers")
         self.commit()
         json = self.query('SELECT ?x WHERE {?x ?y <uri:testKillTripleStoreRecovers>}')
-        self.assertEquals(2, len(json['results']['bindings']))
+        self.assertEqual(2, len(json['results']['bindings']))
 
         kill(self.pids['graphdb'], SIGTERM)
         waitpid(self.pids['graphdb'], WNOHANG)
@@ -110,7 +110,7 @@ class OwlimTest(IntegrationTestCase):
         self.startGraphDBServer()
 
         json = self.query('SELECT ?x WHERE {?x ?y <uri:testKillTripleStoreRecovers>}')
-        self.assertEquals(2, len(json['results']['bindings']))
+        self.assertEqual(2, len(json['results']['bindings']))
 
     @stderr_replaced
     def testKillTripleStoreWhileDoingQuery(self):
@@ -134,7 +134,7 @@ class OwlimTest(IntegrationTestCase):
     </rdf:RDF>""", parse=False)
         self.commit()
         json = self.query('SELECT ?x WHERE {?x ?y "uri:testDelete"}')
-        self.assertEquals(1, len(json['results']['bindings']))
+        self.assertEqual(1, len(json['results']['bindings']))
 
         postRequest(self.graphdbPort, "/update?identifier=uri:record", """<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
         <rdf:Description>
@@ -143,16 +143,16 @@ class OwlimTest(IntegrationTestCase):
     </rdf:RDF>""", parse=False)
         self.commit()
         json = self.query('SELECT ?x WHERE {?x ?y "uri:testDelete"}')
-        self.assertEquals(0, len(json['results']['bindings']))
+        self.assertEqual(0, len(json['results']['bindings']))
         json = self.query('SELECT ?x WHERE {?x ?y "uri:testDeleteUpdated"}')
-        self.assertEquals(1, len(json['results']['bindings']))
+        self.assertEqual(1, len(json['results']['bindings']))
 
         postRequest(self.graphdbPort, "/delete?identifier=uri:record", "", parse=False)
         self.commit()
         json = self.query('SELECT ?x WHERE {?x ?y "uri:testDelete"}')
-        self.assertEquals(0, len(json['results']['bindings']))
+        self.assertEqual(0, len(json['results']['bindings']))
         json = self.query('SELECT ?x WHERE {?x ?y "uri:testDeleteUpdated"}')
-        self.assertEquals(0, len(json['results']['bindings']))
+        self.assertEqual(0, len(json['results']['bindings']))
 
         postRequest(self.graphdbPort, "/add?identifier=uri:record", """<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
         <rdf:Description>
@@ -161,24 +161,24 @@ class OwlimTest(IntegrationTestCase):
     </rdf:RDF>""", parse=False)
         self.commit()
         json = self.query('SELECT ?x WHERE {?x ?y "uri:testDelete"}')
-        self.assertEquals(1, len(json['results']['bindings']))
+        self.assertEqual(1, len(json['results']['bindings']))
 
     def testAddAndRemoveTriple(self):
         json = self.query('SELECT ?obj WHERE { <uri:subject> <uri:predicate> ?obj }')
-        self.assertEquals(0, len(json['results']['bindings']))
+        self.assertEqual(0, len(json['results']['bindings']))
 
         header, body = postRequest(self.graphdbPort, "/addTriple", "uri:subject|uri:predicate|uri:object", parse=False)
         self.assertTrue("200" in header, header)
         self.commit()
 
         json = self.query('SELECT ?obj WHERE { <uri:subject> <uri:predicate> ?obj }')
-        self.assertEquals(1, len(json['results']['bindings']))
+        self.assertEqual(1, len(json['results']['bindings']))
 
         header, body = postRequest(self.graphdbPort, "/removeTriple", "uri:subject|uri:predicate|uri:object", parse=False)
         self.assertTrue("200" in header, header)
         self.commit()
         json = self.query('SELECT ?obj WHERE { <uri:subject> <uri:predicate> ?obj }')
-        self.assertEquals(0, len(json['results']['bindings']))
+        self.assertEqual(0, len(json['results']['bindings']))
 
     def testAddPerformance(self):
         totalTime = 0
@@ -297,7 +297,7 @@ class OwlimTest(IntegrationTestCase):
     </rdf:RDF>""", parse=False)
         self.commit()
         json = self.query('SELECT ?label WHERE {<uri:unicode:chars> ?x ?label}')
-        self.assertEquals(1, len(json['results']['bindings']))
+        self.assertEqual(1, len(json['results']['bindings']))
         self.assertEqual('Ittzés, Gergely', json['results']['bindings'][0]['label']['value'])
 
     def query(self, query):

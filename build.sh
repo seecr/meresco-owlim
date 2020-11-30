@@ -48,6 +48,8 @@ mkdir $BUILDDIR
 
 CP="$(echo $JARS | tr ' ' ':'):$(echo $MERESCO_TRIPLESTORE_JARS | tr ' ' ':'):$(echo $OWLIMJARS | tr ' ' ':')"
 
+CP="./deps.d/meresco-triplestore/server/build/:$CP"
+
 JAVA_VERSION=8
 javac=/usr/lib/jvm/java-1.${JAVA_VERSION}.0/bin/javac
 if [ -f /etc/debian_version ]; then

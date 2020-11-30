@@ -37,7 +37,7 @@ class OwlimIntegrationState(IntegrationState):
         IntegrationState.__init__(self, stateName=stateName, tests=tests, fastMode=fastMode)
 
         self.graphdbDataDir = join(self.integrationTempdir, 'graphdb-data')
-        self.graphdbPort = PortNumberGenerator.next()
+        self.graphdbPort = next(PortNumberGenerator)
         self.testdataDir = join(dirname(myDir), 'data')
         if not fastMode:
             system('rm -rf ' + self.integrationTempdir)
@@ -50,7 +50,7 @@ class OwlimIntegrationState(IntegrationState):
         return serverBinDir
 
     def startGraphDBServer(self):
-        self._startServer('graphdb', self.binPath('start-graphdb'), 'http://localhost:%s/query' % self.graphdbPort, port=self.graphdbPort, stateDir=self.graphdbDataDir, cacheMemory="1G", entityIndexSize="1000000", queryTimeout=10, maxCommitCount=1000, maxCommitTimeout=60)
+        self._startServer('graphdb', self.binPath('start-graphdb.sh'), 'http://localhost:%s/query' % self.graphdbPort, port=self.graphdbPort, stateDir=self.graphdbDataDir, cacheMemory="1G", entityIndexSize="1000000", queryTimeout=10, maxCommitCount=1000, maxCommitTimeout=60)
 
     def restartGraphDBServer(self):
         self.stopGraphDBServer()

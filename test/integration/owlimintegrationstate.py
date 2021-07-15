@@ -37,7 +37,7 @@ class OwlimIntegrationState(IntegrationState):
         IntegrationState.__init__(self, stateName=stateName, tests=tests, fastMode=fastMode)
 
         self.graphdbDataDir = join(self.integrationTempdir, 'graphdb-data')
-        self.graphdbPort = next(PortNumberGenerator)
+        self.graphdbPort = PortNumberGenerator.next()
         self.testdataDir = join(dirname(myDir), 'data')
         if not fastMode:
             system('rm -rf ' + self.integrationTempdir)
